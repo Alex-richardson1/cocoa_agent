@@ -1,0 +1,1172 @@
+[
+  {
+    "id": "20260410_103836",
+    "generated_at": "2026-04-10T10:36:12.137888+00:00",
+    "price_at_prediction": 3357.0,
+    "valuation_bias": {
+      "assessment": "Slightly Overvalued",
+      "magnitude": "Slightly (3\u20137%)",
+      "fair_range_low": 3050.0,
+      "fair_range_high": 3300.0,
+      "primary_driver": "Today's 6.2% bounce has pushed price above fair value into resistance, while the fundamental picture \u2014 surplus market, rising stocks, demand destruction \u2014 remains firmly bearish.",
+      "confidence": "MEDIUM"
+    },
+    "timing_signal": {
+      "action": "Wait for Catalyst",
+      "catalyst": "ECA/NCA Q1 2026 grinding data \u2014 April 16 (6 days). If ECA prints worse than -5% YoY (bear case), expect -3.3% average over T+5 (~-111/t). If in-line, expect +4.6% (~+153/t). This binary event dominates near-term price action.",
+      "entry_level": 3400.0,
+      "invalidation": "A close above 3,552 (EMA-50) would signal trend reversal and invalidate the overvaluation thesis."
+    },
+    "factors_cited": [
+      "technical_ema",
+      "technical_bb",
+      "warehouse_stocks",
+      "grinding_data",
+      "seasonal",
+      "surplus_deficit"
+    ],
+    "evaluations": {
+      "7d": {
+        "status": "scored",
+        "scored_at": "2026-04-20T09:04:14.635444+00:00",
+        "price_at_eval": 3186.0,
+        "bias_direction_correct": true,
+        "bias_magnitude_correct": true,
+        "bias_error_pct": -5.09,
+        "timing_useful": true,
+        "timing_entry_hit": true
+      },
+      "14d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 22.4,
+        "timing_useful": false,
+        "timing_entry_hit": false
+      },
+      "21d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 22.4,
+        "timing_useful": false,
+        "timing_entry_hit": false
+      }
+    }
+  },
+  {
+    "id": "20260410_122858",
+    "generated_at": "2026-04-10T12:26:10.695641+00:00",
+    "price_at_prediction": 3353.0,
+    "valuation_bias": {
+      "assessment": "Slightly Undervalued",
+      "magnitude": "Slightly (3\u20138%)",
+      "fair_range_low": 3400.0,
+      "fair_range_high": 3650.0,
+      "primary_driver": "Market has overcorrected for the surplus narrative and demand destruction; current price sits below ING's 2026 average forecast and does not adequately price the mid-crop flowering weather risk or potential grinding stabilisation at lower price levels.",
+      "confidence": "MEDIUM"
+    },
+    "timing_signal": {
+      "action": "Wait for Catalyst",
+      "catalyst": "ECA Q1 2026 grinding data \u2014 April 16 (6 days). Base case (-5% YoY, in line) historically yields +4.6% over T+5 (~+$153/t). A miss (-9% YoY) risks -3.3% (~-$111/t). This release will resolve the demand ambiguity.",
+      "entry_level": 3300.0,
+      "invalidation": "A close below 3,155 (52-week low) would signal further capitulation and negate the undervaluation thesis."
+    },
+    "factors_cited": [
+      "warehouse_stocks",
+      "grinding_data",
+      "seasonal",
+      "surplus_deficit"
+    ],
+    "evaluations": {
+      "7d": {
+        "status": "scored",
+        "scored_at": "2026-04-20T09:04:14.635444+00:00",
+        "price_at_eval": 3186.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": -4.98,
+        "timing_useful": false,
+        "timing_entry_hit": false
+      },
+      "14d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": true,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 22.55,
+        "timing_useful": true,
+        "timing_entry_hit": true
+      },
+      "21d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": true,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 22.55,
+        "timing_useful": true,
+        "timing_entry_hit": true
+      }
+    }
+  },
+  {
+    "id": "20260410_154148",
+    "generated_at": "2026-04-10T15:38:49.909465+00:00",
+    "price_at_prediction": 3348.0,
+    "valuation_bias": {
+      "assessment": "Slightly Undervalued",
+      "magnitude": "Slightly (3\u20137%)",
+      "fair_range_low": 3400.0,
+      "fair_range_high": 3650.0,
+      "primary_driver": "Market has overshot to the downside on bearish sentiment ahead of grinding data, pricing in worst-case demand destruction without adequately reflecting mid-crop weather risk during a high-sensitivity flowering phase.",
+      "confidence": "MEDIUM"
+    },
+    "timing_signal": {
+      "action": "Wait for Catalyst",
+      "catalyst": "ECA/NCA Q1 2026 grinding data \u2014 April 16. If prints in-line or better than -5% YoY, historical model suggests +4.6% T+5 rally. If prints worse (-9% or below), expect further -3.3% decline.",
+      "entry_level": 3300.0,
+      "invalidation": "A close below 3,155 USD/t (\u22482,343 GBP/t) \u2014 the 52-week low \u2014 would signal no floor and invalidate the undervaluation thesis."
+    },
+    "factors_cited": [
+      "warehouse_stocks",
+      "grinding_data",
+      "seasonal",
+      "surplus_deficit"
+    ],
+    "evaluations": {
+      "7d": {
+        "status": "scored",
+        "scored_at": "2026-04-20T09:04:14.635444+00:00",
+        "price_at_eval": 3186.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": -4.84,
+        "timing_useful": false,
+        "timing_entry_hit": false
+      },
+      "14d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": true,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 22.73,
+        "timing_useful": true,
+        "timing_entry_hit": true
+      },
+      "21d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": true,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 22.73,
+        "timing_useful": true,
+        "timing_entry_hit": true
+      }
+    }
+  },
+  {
+    "id": "20260413_103149",
+    "generated_at": "2026-04-13T10:27:41.703059+00:00",
+    "price_at_prediction": 3358.0,
+    "valuation_bias": {
+      "assessment": "Fairly Valued to Slightly Overvalued",
+      "magnitude": "Slightly (1\u20135%)",
+      "fair_range_low": 3100.0,
+      "fair_range_high": 3400.0,
+      "primary_driver": "Market is near fair value given the ICCO surplus, structural demand destruction (ECA -5.9%), and rising warehouse stocks, but mild weather risk and USD weakness prevent a further break lower.",
+      "confidence": "MEDIUM"
+    },
+    "timing_signal": {
+      "action": "Wait for Catalyst",
+      "catalyst": "ECA/NCA Q1 2026 grinding data on April 16. Base case (in-line at -5% YoY) historically yields +4.6% over T+5 (~+\u00a3153/t). A moderate miss averages -3.3%. This is the defining event.",
+      "entry_level": 3350.0,
+      "invalidation": "A close below 3,115 USD/t (\u22482,320 GBP/t) \u2014 the 52-week low \u2014 would signal accelerating bearish momentum and invalidate any neutral-to-bullish view."
+    },
+    "factors_cited": [
+      "supply_stress",
+      "warehouse_stocks",
+      "grinding_data",
+      "seasonal",
+      "surplus_deficit"
+    ],
+    "evaluations": {
+      "7d": {
+        "status": "scored",
+        "scored_at": "2026-04-21T17:37:03.039849+00:00",
+        "price_at_eval": 3294.0,
+        "bias_direction_correct": true,
+        "bias_magnitude_correct": true,
+        "bias_error_pct": -1.91,
+        "timing_useful": true,
+        "timing_entry_hit": true
+      },
+      "14d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 22.36,
+        "timing_useful": false,
+        "timing_entry_hit": false
+      },
+      "21d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 22.36,
+        "timing_useful": false,
+        "timing_entry_hit": false
+      }
+    }
+  },
+  {
+    "id": "20260414_152652",
+    "generated_at": "2026-04-14T15:23:38.210016+00:00",
+    "price_at_prediction": 3422.0,
+    "valuation_bias": {
+      "assessment": "Undervalued",
+      "magnitude": "Moderately (5\u201315%)",
+      "fair_range_low": 3600.0,
+      "fair_range_high": 4000.0,
+      "primary_driver": "Market has overshot to the downside on demand destruction fears, but the ICCO surplus is modest (+49kt), mid-crop weather stress is real, and analyst consensus (ING ~4,586 USD/t) sits well above spot.",
+      "confidence": "MEDIUM"
+    },
+    "timing_signal": {
+      "action": "Wait for Catalyst",
+      "catalyst": "ECA/NCA Q1 2026 grinding data \u2014 April 16. If ECA prints in-line (-5% YoY) or better, historical precedent suggests +4.6% over T+5 (~+\u00a3156/t). Enter long on confirmation. If prints worse than -9% YoY, step aside.",
+      "entry_level": 3400.0,
+      "invalidation": "A close below 3,116 USD/t (\u22482,295 GBP/t) \u2014 the 52-week low \u2014 would signal the downtrend is accelerating and fair value estimates need a reset lower."
+    },
+    "factors_cited": [
+      "supply_stress",
+      "warehouse_stocks",
+      "grinding_data",
+      "seasonal",
+      "surplus_deficit"
+    ],
+    "evaluations": {
+      "7d": {
+        "status": "scored",
+        "scored_at": "2026-04-21T17:37:03.039849+00:00",
+        "price_at_eval": 3294.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": -3.74,
+        "timing_useful": false,
+        "timing_entry_hit": false
+      },
+      "14d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": true,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 20.08,
+        "timing_useful": true,
+        "timing_entry_hit": true
+      },
+      "21d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": true,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 20.08,
+        "timing_useful": true,
+        "timing_entry_hit": true
+      }
+    }
+  },
+  {
+    "id": "20260415_083248",
+    "generated_at": "2026-04-15T08:29:27.909425+00:00",
+    "price_at_prediction": 3557.0,
+    "valuation_bias": {
+      "assessment": "Slightly Undervalued",
+      "magnitude": "Slightly (3\u20137%)",
+      "fair_range_low": 3600.0,
+      "fair_range_high": 3900.0,
+      "primary_driver": "Market is still pricing in surplus and demand destruction, but mid-crop weather stress during flowering (score 63) and historically depleted physical stocks create supply risk that isn't fully reflected. The 60% farmer pay cut further threatens future production.",
+      "confidence": "MEDIUM"
+    },
+    "timing_signal": {
+      "action": "Wait for Catalyst",
+      "catalyst": "ECA/NCA Q1 2026 grinding data releases tomorrow (April 16). Consensus: ECA -5.0% YoY, NCA -2.0% YoY. If in-line or better \u2192 historical T+5 avg +4.6% (~+162 USD/t), confirming undervaluation. If moderate miss \u2192 T+5 avg -3.3%, invalidating the short-term long thesis.",
+      "entry_level": 3450.0,
+      "invalidation": "A close below 3,200 USD/t (\u2248 2,359 GBP/t) post-grindings would signal demand destruction dominates, flipping the view bearish."
+    },
+    "factors_cited": [
+      "supply_stress",
+      "warehouse_stocks",
+      "grinding_data",
+      "seasonal",
+      "surplus_deficit"
+    ],
+    "evaluations": {
+      "7d": {
+        "status": "scored",
+        "scored_at": "2026-04-22T09:52:48.410781+00:00",
+        "price_at_eval": 3313.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": -6.86,
+        "timing_useful": false,
+        "timing_entry_hit": false
+      },
+      "14d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": true,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 15.52,
+        "timing_useful": true,
+        "timing_entry_hit": true
+      },
+      "21d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": true,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 15.52,
+        "timing_useful": true,
+        "timing_entry_hit": true
+      }
+    }
+  },
+  {
+    "id": "20260416_110443",
+    "generated_at": "2026-04-16T11:01:53.906477+00:00",
+    "price_at_prediction": 3567.0,
+    "valuation_bias": {
+      "assessment": "Overvalued",
+      "magnitude": "Slightly (3\u20138%)",
+      "fair_range_low": 3250.0,
+      "fair_range_high": 3500.0,
+      "primary_driver": "The +12.8% weekly rally has overshot fundamentals \u2014 benign supply conditions, rising warehouse stocks, and structural demand destruction do not support prices above 3,500.",
+      "confidence": "MEDIUM"
+    },
+    "timing_signal": {
+      "action": "Wait for Catalyst",
+      "catalyst": "ECA/NCA Q1 2026 grinding data releasing TODAY. If ECA prints -5% YoY or worse (base/bear), expect T+5 move of -3.3% avg (~-118 USD/t). If surprisingly strong (>-2% YoY), the overvaluation thesis is invalidated.",
+      "entry_level": 3600.0,
+      "invalidation": "A close above 3,665 USD/t (\u22482,706 GBP/t) \u2014 the EMA-50 \u2014 combined with bullish grinding data would flip this view entirely."
+    },
+    "factors_cited": [
+      "supply_stress",
+      "technical_ema",
+      "warehouse_stocks",
+      "grinding_data",
+      "surplus_deficit"
+    ],
+    "evaluations": {
+      "7d": {
+        "status": "scored",
+        "scored_at": "2026-04-23T16:21:13.898553+00:00",
+        "price_at_eval": 3449.0,
+        "bias_direction_correct": true,
+        "bias_magnitude_correct": true,
+        "bias_error_pct": -3.31,
+        "timing_useful": true,
+        "timing_entry_hit": true
+      },
+      "14d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 15.19,
+        "timing_useful": false,
+        "timing_entry_hit": false
+      },
+      "21d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 15.19,
+        "timing_useful": false,
+        "timing_entry_hit": false
+      }
+    }
+  },
+  {
+    "id": "20260417_092105",
+    "generated_at": "2026-04-17T09:18:29.683999+00:00",
+    "price_at_prediction": 3560.0,
+    "valuation_bias": {
+      "assessment": "Overvalued",
+      "magnitude": "Slightly (3\u20138%)",
+      "fair_range_low": 3250.0,
+      "fair_range_high": 3450.0,
+      "primary_driver": "The 5% weekly bounce has pushed price above fair value into a region inconsistent with bearish fundamentals \u2014 surplus supply, demand destruction, rising warehouse stocks, and no weather premium.",
+      "confidence": "MEDIUM"
+    },
+    "timing_signal": {
+      "action": "Wait for Level",
+      "catalyst": null,
+      "entry_level": 3650.0,
+      "invalidation": "A close above 3,811 (EMA-50, \u22482,818 GBP/t) would signal trend reversal and negate the bearish thesis."
+    },
+    "factors_cited": [
+      "technical_ema",
+      "technical_bb",
+      "warehouse_stocks",
+      "grinding_data",
+      "surplus_deficit"
+    ],
+    "evaluations": {
+      "7d": {
+        "status": "scored",
+        "scored_at": "2026-04-24T13:56:59.972331+00:00",
+        "price_at_eval": 3403.0,
+        "bias_direction_correct": true,
+        "bias_magnitude_correct": true,
+        "bias_error_pct": -4.41,
+        "timing_useful": true,
+        "timing_entry_hit": true
+      },
+      "14d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 15.42,
+        "timing_useful": false,
+        "timing_entry_hit": false
+      },
+      "21d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 15.42,
+        "timing_useful": false,
+        "timing_entry_hit": false
+      }
+    }
+  },
+  {
+    "id": "20260420_090457",
+    "generated_at": "2026-04-20T09:02:23.461489+00:00",
+    "price_at_prediction": 3186.0,
+    "valuation_bias": {
+      "assessment": "Fairly Valued",
+      "magnitude": "N/A",
+      "fair_range_low": 2950.0,
+      "fair_range_high": 3350.0,
+      "primary_driver": "Supply fundamentals, demand destruction, and rising warehouse stocks are all aligned bearish \u2014 the price decline reflects real fundamental deterioration, not an overshoot.",
+      "confidence": "MEDIUM"
+    },
+    "timing_signal": {
+      "action": "Wait for Catalyst",
+      "catalyst": "The Q1 2026 ECA/NCA grinding data (nominally April 16) \u2014 if already released, assess the print. In-line or better = potential bounce to 3,300\u20133,350; miss = risk of testing 2,992 support.",
+      "entry_level": 3300.0,
+      "invalidation": "A sustained close below 2,992 (\u22482,216 GBP/t) \u2014 the 52-week low \u2014 would signal a new leg down and invalidate the \"fairly valued\" thesis."
+    },
+    "factors_cited": [
+      "supply_stress",
+      "technical_ema",
+      "warehouse_stocks",
+      "grinding_data",
+      "surplus_deficit"
+    ],
+    "evaluations": {
+      "7d": {
+        "status": "scored",
+        "scored_at": "2026-04-27T09:31:10.338547+00:00",
+        "price_at_eval": 3457.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 8.51,
+        "timing_useful": false,
+        "timing_entry_hit": true
+      },
+      "14d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 28.97,
+        "timing_useful": false,
+        "timing_entry_hit": true
+      },
+      "21d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 28.97,
+        "timing_useful": false,
+        "timing_entry_hit": true
+      }
+    }
+  },
+  {
+    "id": "20260421_173742",
+    "generated_at": "2026-04-21T17:35:31.580147+00:00",
+    "price_at_prediction": 3294.0,
+    "valuation_bias": {
+      "assessment": "Fairly Valued",
+      "magnitude": "N/A",
+      "fair_range_low": 3050.0,
+      "fair_range_high": 3350.0,
+      "primary_driver": "No clear mispricing \u2014 the market is correctly pricing surplus supply, structural demand destruction, rising stocks, and no weather threat.",
+      "confidence": "MEDIUM"
+    },
+    "timing_signal": {
+      "action": "Wait for Level",
+      "catalyst": "If Q1 grinding data has not yet printed, that remains the key event. Otherwise, next catalyst is mid-crop weather deterioration or ICCO update.",
+      "entry_level": 3129.0,
+      "invalidation": "A close above 3,436 (EMA-20, \u22482,546 GBP/t) would signal the downtrend is pausing and warrant reassessment."
+    },
+    "factors_cited": [
+      "supply_stress",
+      "technical_ema",
+      "technical_rsi",
+      "technical_bb",
+      "warehouse_stocks",
+      "grinding_data",
+      "weather",
+      "seasonal",
+      "surplus_deficit"
+    ],
+    "evaluations": {
+      "7d": {
+        "status": "scored",
+        "scored_at": "2026-04-29T10:44:32.019732+00:00",
+        "price_at_eval": 3338.0,
+        "bias_direction_correct": true,
+        "bias_magnitude_correct": true,
+        "bias_error_pct": 1.34,
+        "timing_useful": true,
+        "timing_entry_hit": true
+      },
+      "14d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 24.74,
+        "timing_useful": false,
+        "timing_entry_hit": true
+      },
+      "21d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 24.74,
+        "timing_useful": false,
+        "timing_entry_hit": true
+      }
+    }
+  },
+  {
+    "id": "20260422_095328",
+    "generated_at": "2026-04-22T09:51:09.718497+00:00",
+    "price_at_prediction": 3313.0,
+    "valuation_bias": {
+      "assessment": "Fairly Valued",
+      "magnitude": "N/A",
+      "fair_range_low": 3100.0,
+      "fair_range_high": 3450.0,
+      "primary_driver": "No clear mispricing \u2014 surplus conditions, demand destruction, and rising warehouse stocks justify current depressed levels. My previous \"undervalued\" calls were systematically wrong.",
+      "confidence": "LOW"
+    },
+    "timing_signal": {
+      "action": "Wait for Catalyst",
+      "catalyst": "Confirm the ECA Q1 2026 grinding result (released ~April 16). If in-line or better than -5% YoY consensus, historical model suggests +4.6% T+5 reaction (~+151 USD/t), which would offer a cleaner long entry with fundamental support.",
+      "entry_level": 5.0,
+      "invalidation": "A sustained break below 3,150 USD/t (\u22482,329 GBP/t) on volume would signal further downside toward 2,800\u20133,000 and invalidate the \"fairly valued\" assessment."
+    },
+    "factors_cited": [
+      "supply_stress",
+      "technical_bb",
+      "warehouse_stocks",
+      "grinding_data",
+      "surplus_deficit"
+    ],
+    "evaluations": {
+      "7d": {
+        "status": "scored",
+        "scored_at": "2026-04-29T10:44:32.019732+00:00",
+        "price_at_eval": 3338.0,
+        "bias_direction_correct": true,
+        "bias_magnitude_correct": true,
+        "bias_error_pct": 0.75,
+        "timing_useful": true,
+        "timing_entry_hit": true
+      },
+      "14d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 24.03,
+        "timing_useful": false,
+        "timing_entry_hit": true
+      },
+      "21d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 24.03,
+        "timing_useful": false,
+        "timing_entry_hit": true
+      }
+    }
+  },
+  {
+    "id": "20260423_162154",
+    "generated_at": "2026-04-23T16:19:08.945794+00:00",
+    "price_at_prediction": 3449.0,
+    "valuation_bias": {
+      "assessment": "Fairly Valued",
+      "magnitude": "Slightly (within 1\u20133%)",
+      "fair_range_low": 3300.0,
+      "fair_range_high": 3600.0,
+      "primary_driver": "Bearish demand fundamentals (surplus, weak grindings) are roughly balanced by bullish physical tightness (stocks down 34% to 341k bags) and a weak USD.",
+      "confidence": "LOW"
+    },
+    "timing_signal": {
+      "action": "Wait for Catalyst",
+      "catalyst": "Assess market reaction to the Q1 ECA/NCA grinding release (April 16 \u2014 already released; monitor the T+5 price action through April 23). If grindings printed in-line, historical precedent suggests +4.6% over 5 days.",
+      "entry_level": 3300.0,
+      "invalidation": "A sustained close below 3,117 (\u22482,311 GBP/t, 52w low) would signal fresh bearish leg and invalidate any neutral/long thesis."
+    },
+    "factors_cited": [
+      "supply_stress",
+      "technical_ema",
+      "technical_bb",
+      "warehouse_stocks",
+      "grinding_data",
+      "surplus_deficit"
+    ],
+    "evaluations": {
+      "7d": {
+        "status": "scored",
+        "scored_at": "2026-05-06T08:28:08.379807+00:00",
+        "price_at_eval": 4003.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 16.06,
+        "timing_useful": false,
+        "timing_entry_hit": true
+      },
+      "14d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 19.14,
+        "timing_useful": false,
+        "timing_entry_hit": true
+      },
+      "21d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 19.14,
+        "timing_useful": false,
+        "timing_entry_hit": true
+      }
+    }
+  },
+  {
+    "id": "20260424_135738",
+    "generated_at": "2026-04-24T13:31:24.369788+00:00",
+    "price_at_prediction": 3403.0,
+    "valuation_bias": {
+      "assessment": "Fairly Valued",
+      "magnitude": "Slightly (within 1\u20133%)",
+      "fair_range_low": 3250.0,
+      "fair_range_high": 3550.0,
+      "primary_driver": "Bearish structural forces (surplus, weak demand, rising stocks) are largely priced in at these levels; episodic supply risks provide a floor but not a catalyst for recovery.",
+      "confidence": "MEDIUM"
+    },
+    "timing_signal": {
+      "action": "Wait for Level",
+      "catalyst": null,
+      "entry_level": 3200.0,
+      "invalidation": "A sustained close above 3,740 (EMA-50, \u22482,772 GBP/t) would signal a trend reversal and invalidate the neutral-to-bearish structure."
+    },
+    "factors_cited": [
+      "technical_ema",
+      "technical_bb",
+      "warehouse_stocks",
+      "grinding_data",
+      "surplus_deficit"
+    ],
+    "evaluations": {
+      "7d": {
+        "status": "scored",
+        "scored_at": "2026-05-06T08:28:08.379807+00:00",
+        "price_at_eval": 4003.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 17.63,
+        "timing_useful": false,
+        "timing_entry_hit": true
+      },
+      "14d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 20.75,
+        "timing_useful": false,
+        "timing_entry_hit": true
+      },
+      "21d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 20.75,
+        "timing_useful": false,
+        "timing_entry_hit": true
+      }
+    }
+  },
+  {
+    "id": "20260427_093146",
+    "generated_at": "2026-04-27T09:29:11.735409+00:00",
+    "price_at_prediction": 3457.0,
+    "valuation_bias": {
+      "assessment": "Slightly Undervalued",
+      "magnitude": "Slightly (2\u20135%)",
+      "fair_range_low": 3450.0,
+      "fair_range_high": 3700.0,
+      "primary_driver": "Market has priced in the surplus and demand destruction aggressively, but farmer payment crises in Ghana and mid-crop flowering sensitivity create underappreciated medium-term supply risk that warrants a modest premium.",
+      "confidence": "LOW"
+    },
+    "timing_signal": {
+      "action": "Wait for Level",
+      "catalyst": null,
+      "entry_level": 3420.0,
+      "invalidation": "A close below 3,300 USD/t (\u22482,435 GBP/t) would re-establish the downtrend and invalidate the mild bullish lean. Conversely, a close above 3,690 (EMA-50, \u22482,722 GBP/t) would confirm trend reversal and increase conviction significantly."
+    },
+    "factors_cited": [
+      "supply_stress",
+      "technical_macd",
+      "technical_ema",
+      "warehouse_stocks",
+      "grinding_data",
+      "seasonal",
+      "surplus_deficit"
+    ],
+    "evaluations": {
+      "7d": {
+        "status": "scored",
+        "scored_at": "2026-05-06T08:28:08.379807+00:00",
+        "price_at_eval": 4003.0,
+        "bias_direction_correct": true,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 15.79,
+        "timing_useful": true,
+        "timing_entry_hit": true
+      },
+      "14d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": true,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 18.86,
+        "timing_useful": true,
+        "timing_entry_hit": true
+      },
+      "21d": {
+        "status": "scored",
+        "scored_at": "2026-05-19T09:20:32.064907+00:00",
+        "price_at_eval": 3893.0,
+        "bias_direction_correct": true,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 12.61,
+        "timing_useful": true,
+        "timing_entry_hit": true
+      }
+    }
+  },
+  {
+    "id": "20260428_124015",
+    "generated_at": "2026-04-28T12:37:32.841447+00:00",
+    "price_at_prediction": 3366.0,
+    "valuation_bias": {
+      "assessment": "Slightly Undervalued",
+      "magnitude": "Slightly (3\u20136%)",
+      "fair_range_low": 3350.0,
+      "fair_range_high": 3650.0,
+      "primary_driver": "Market has priced in surplus and demand destruction aggressively, but the Ghana payment crisis, still-modest 49kt surplus, and mid-crop flowering sensitivity create supply risk not fully reflected. Warehouse stocks are rising fast but remain in normal range (~612k bags).",
+      "confidence": "LOW"
+    },
+    "timing_signal": {
+      "action": "Wait for Level",
+      "catalyst": null,
+      "entry_level": 3200.0,
+      "invalidation": "A close below 3,149 USD/t (\u22482,335 GBP/t) \u2014 the 52-week low \u2014 would signal breakdown and invalidate the undervaluation thesis entirely"
+    },
+    "factors_cited": [
+      "technical_bb",
+      "warehouse_stocks",
+      "grinding_data",
+      "seasonal",
+      "surplus_deficit"
+    ],
+    "evaluations": {
+      "7d": {
+        "status": "scored",
+        "scored_at": "2026-05-06T08:28:08.379807+00:00",
+        "price_at_eval": 4003.0,
+        "bias_direction_correct": true,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 18.92,
+        "timing_useful": true,
+        "timing_entry_hit": true
+      },
+      "14d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": true,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 22.07,
+        "timing_useful": true,
+        "timing_entry_hit": true
+      },
+      "21d": {
+        "status": "pending",
+        "scored_at": null,
+        "price_at_eval": null,
+        "bias_direction_correct": null,
+        "bias_magnitude_correct": null,
+        "bias_error_pct": null,
+        "timing_useful": null,
+        "timing_entry_hit": null
+      }
+    }
+  },
+  {
+    "id": "20260429_104510",
+    "generated_at": "2026-04-29T10:41:50.299642+00:00",
+    "price_at_prediction": 3338.0,
+    "valuation_bias": {
+      "assessment": "Slightly Undervalued",
+      "magnitude": "Slightly (3\u20135%)",
+      "fair_range_low": 3350.0,
+      "fair_range_high": 3650.0,
+      "primary_driver": "Market has priced in surplus/demand destruction aggressively but is underweighting mid-crop flowering stress and the forward supply risk from Ivory Coast fertilizer shortages.",
+      "confidence": "LOW"
+    },
+    "timing_signal": {
+      "action": "Wait for Level",
+      "catalyst": null,
+      "entry_level": 3088.0,
+      "invalidation": "A close below 3,088 USD/t (\u22482,286 GBP/t) \u2014 new 52-week low would signal further structural breakdown"
+    },
+    "factors_cited": [
+      "supply_stress",
+      "technical_bb",
+      "warehouse_stocks",
+      "grinding_data",
+      "seasonal",
+      "surplus_deficit"
+    ],
+    "evaluations": {
+      "7d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T11:23:04.629668+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": true,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 23.1,
+        "timing_useful": true,
+        "timing_entry_hit": true
+      },
+      "14d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T13:58:40.851296+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": true,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 23.1,
+        "timing_useful": true,
+        "timing_entry_hit": true
+      },
+      "21d": {
+        "status": "pending",
+        "scored_at": null,
+        "price_at_eval": null,
+        "bias_direction_correct": null,
+        "bias_magnitude_correct": null,
+        "bias_error_pct": null,
+        "timing_useful": null,
+        "timing_entry_hit": null
+      }
+    }
+  },
+  {
+    "id": "20260506_082847",
+    "generated_at": "2026-05-06T08:26:30.259274+00:00",
+    "price_at_prediction": 4003.0,
+    "valuation_bias": {
+      "assessment": "Overvalued",
+      "magnitude": "Slightly (3\u20138%)",
+      "fair_range_low": 3700.0,
+      "fair_range_high": 4050.0,
+      "primary_driver": "Short-covering rally has overshot what a stress score of 45 and rising warehouse stocks justify; the market is pricing in supply risk that satellites do not yet confirm.",
+      "confidence": "LOW"
+    },
+    "timing_signal": {
+      "action": "Wait for Level",
+      "catalyst": "ECA Q1 2026 grinding data (April 16 \u2014 already passed per the note, but data appears unreleased in this feed). If grindings surprise better than -5% YoY, the base-case model suggests +4.6% over 5 days, which would invalidate the overvalued thesis.",
+      "entry_level": 4150.0,
+      "invalidation": "A close above 4,200 USD/t (\u22483,088 GBP/t) with rising OBV would confirm the rally is real, not just short-covering, flipping the view."
+    },
+    "factors_cited": [
+      "supply_stress",
+      "technical_ema",
+      "technical_bb",
+      "warehouse_stocks",
+      "grinding_data",
+      "surplus_deficit"
+    ],
+    "evaluations": {
+      "7d": {
+        "status": "scored",
+        "scored_at": "2026-05-17T11:23:04.629668+00:00",
+        "price_at_eval": 4109.0,
+        "bias_direction_correct": false,
+        "bias_magnitude_correct": false,
+        "bias_error_pct": 2.65,
+        "timing_useful": false,
+        "timing_entry_hit": true
+      },
+      "14d": {
+        "status": "pending",
+        "scored_at": null,
+        "price_at_eval": null,
+        "bias_direction_correct": null,
+        "bias_magnitude_correct": null,
+        "bias_error_pct": null,
+        "timing_useful": null,
+        "timing_entry_hit": null
+      },
+      "21d": {
+        "status": "pending",
+        "scored_at": null,
+        "price_at_eval": null,
+        "bias_direction_correct": null,
+        "bias_magnitude_correct": null,
+        "bias_error_pct": null,
+        "timing_useful": null,
+        "timing_entry_hit": null
+      }
+    }
+  },
+  {
+    "id": "20260517_112342",
+    "generated_at": "2026-05-17T11:19:37.678991+00:00",
+    "price_at_prediction": 4109.0,
+    "valuation_bias": {
+      "assessment": "Slightly Overvalued",
+      "magnitude": "Slightly (3\u20137%)",
+      "fair_range_low": 3800.0,
+      "fair_range_high": 4050.0,
+      "primary_driver": "Market has not fully absorbed the implications of a confirmed surplus, decade-low grindings, and steadily rising warehouse stocks \u2014 price still carries residual risk premium from the 2024 deficit era.",
+      "confidence": "LOW"
+    },
+    "timing_signal": {
+      "action": "Wait for Level",
+      "catalyst": null,
+      "entry_level": 4250.0,
+      "invalidation": "A daily close above 4,593 (EMA-50, \u22483,450 GBP/t) would signal trend reversal and invalidate the bearish thesis."
+    },
+    "factors_cited": [
+      "technical_ema",
+      "technical_bb",
+      "warehouse_stocks",
+      "grinding_data",
+      "seasonal",
+      "surplus_deficit"
+    ],
+    "evaluations": {
+      "7d": {
+        "status": "pending",
+        "scored_at": null,
+        "price_at_eval": null,
+        "bias_direction_correct": null,
+        "bias_magnitude_correct": null,
+        "bias_error_pct": null,
+        "timing_useful": null,
+        "timing_entry_hit": null
+      },
+      "14d": {
+        "status": "pending",
+        "scored_at": null,
+        "price_at_eval": null,
+        "bias_direction_correct": null,
+        "bias_magnitude_correct": null,
+        "bias_error_pct": null,
+        "timing_useful": null,
+        "timing_entry_hit": null
+      },
+      "21d": {
+        "status": "pending",
+        "scored_at": null,
+        "price_at_eval": null,
+        "bias_direction_correct": null,
+        "bias_magnitude_correct": null,
+        "bias_error_pct": null,
+        "timing_useful": null,
+        "timing_entry_hit": null
+      }
+    }
+  },
+  {
+    "id": "20260517_135923",
+    "generated_at": "2026-05-17T13:56:32.815997+00:00",
+    "price_at_prediction": 4109.0,
+    "valuation_bias": {
+      "assessment": "Fairly Valued",
+      "magnitude": "N/A",
+      "fair_range_low": 3850.0,
+      "fair_range_high": 4250.0,
+      "primary_driver": "Market has already repriced the surplus transition; current level roughly balances bearish structural fundamentals against extreme short positioning that provides a floor.",
+      "confidence": "LOW"
+    },
+    "timing_signal": {
+      "action": "Wait for Level",
+      "catalyst": null,
+      "entry_level": 3960.0,
+      "invalidation": "A sustained close above 4,400 (EMA-20, \u22483,303 GBP/t) would suggest the short-squeeze dynamic is overpowering fundamentals and the bearish case needs reassessment."
+    },
+    "factors_cited": [
+      "supply_stress",
+      "technical_ema",
+      "technical_rsi",
+      "warehouse_stocks",
+      "grinding_data",
+      "surplus_deficit"
+    ],
+    "evaluations": {
+      "7d": {
+        "status": "pending",
+        "scored_at": null,
+        "price_at_eval": null,
+        "bias_direction_correct": null,
+        "bias_magnitude_correct": null,
+        "bias_error_pct": null,
+        "timing_useful": null,
+        "timing_entry_hit": null
+      },
+      "14d": {
+        "status": "pending",
+        "scored_at": null,
+        "price_at_eval": null,
+        "bias_direction_correct": null,
+        "bias_magnitude_correct": null,
+        "bias_error_pct": null,
+        "timing_useful": null,
+        "timing_entry_hit": null
+      },
+      "21d": {
+        "status": "pending",
+        "scored_at": null,
+        "price_at_eval": null,
+        "bias_direction_correct": null,
+        "bias_magnitude_correct": null,
+        "bias_error_pct": null,
+        "timing_useful": null,
+        "timing_entry_hit": null
+      }
+    }
+  },
+  {
+    "id": "20260519_092113",
+    "generated_at": "2026-05-19T09:12:43.652242+00:00",
+    "price_at_prediction": 3893.0,
+    "valuation_bias": {
+      "assessment": "Slightly Overvalued",
+      "magnitude": "Slightly (3\u20137%)",
+      "fair_range_low": 3550.0,
+      "fair_range_high": 3800.0,
+      "primary_driver": "Market hasn't fully priced the combination of a 75,000t surplus expanding to 287,000t, ECA grindings at 17-year lows, and rising warehouse stocks \u2014 the late-April squeeze inflated the base.",
+      "confidence": "LOW"
+    },
+    "timing_signal": {
+      "action": "Wait for Level",
+      "catalyst": null,
+      "entry_level": 4050.0,
+      "invalidation": "A close above 4,280 USD/t (\u22483,196 GBP/t) \u2014 the EMA-20 \u2014 would signal the downtrend is breaking and the bearish thesis is wrong. Given extreme short positioning, a squeeze to this level is plausible."
+    },
+    "factors_cited": [
+      "technical_ema",
+      "warehouse_stocks",
+      "grinding_data",
+      "weather",
+      "surplus_deficit"
+    ],
+    "evaluations": {
+      "7d": {
+        "status": "pending",
+        "scored_at": null,
+        "price_at_eval": null,
+        "bias_direction_correct": null,
+        "bias_magnitude_correct": null,
+        "bias_error_pct": null,
+        "timing_useful": null,
+        "timing_entry_hit": null
+      },
+      "14d": {
+        "status": "pending",
+        "scored_at": null,
+        "price_at_eval": null,
+        "bias_direction_correct": null,
+        "bias_magnitude_correct": null,
+        "bias_error_pct": null,
+        "timing_useful": null,
+        "timing_entry_hit": null
+      },
+      "21d": {
+        "status": "pending",
+        "scored_at": null,
+        "price_at_eval": null,
+        "bias_direction_correct": null,
+        "bias_magnitude_correct": null,
+        "bias_error_pct": null,
+        "timing_useful": null,
+        "timing_entry_hit": null
+      }
+    }
+  }
+]
