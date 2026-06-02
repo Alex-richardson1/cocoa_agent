@@ -1,0 +1,48 @@
+{
+  "_note": "Update this file after each quarterly grinding release",
+  "_sources": {
+    "ECA": "https://www.eurococoa.com/grind-stats/",
+    "NCA": "https://candyusa.com/cocoa-grinds-report/",
+    "CAA": "Cocoa Association of Asia press releases"
+  },
+  "latest_quarter": "Q1 2026",
+  "release_date": "2026-04-16",
+  "ECA": {
+    "quarter": "Q1 2026",
+    "volume_tonnes": 325895,
+    "yoy_change_pct": -7.8,
+    "prior_quarter": "Q4 2025",
+    "prior_volume": 304470,
+    "full_year_2025": 1327000,
+    "full_year_yoy": -5.9,
+    "note": "Lowest Q1 in 17 years. Bigger decline than consensus (-6%). Germany Q1 down 8.7% to 90,852t."
+  },
+  "NCA": {
+    "quarter": "Q1 2026",
+    "volume_tonnes": 106000,
+    "yoy_change_pct": -3.8,
+    "full_year_yoy": -0.9,
+    "note": "North America Q1 2026 down 3.8% YoY, adds to bearish demand signal"
+  },
+  "CAA": {
+    "quarter": "Q1 2026",
+    "volume_tonnes": 223503,
+    "yoy_change_pct": 5.2,
+    "trailing_12m_yoy": null,
+    "note": "Asia Q1 2026 surprise beat: +5.2% YoY vs expectations of -6.7%. Regional divergence widening."
+  },
+  "next_releases": {
+    "ECA_Q2_2026": "2026-07-16",
+    "NCA_Q2_2026": "2026-07-16",
+    "CAA_Q2_2026": "2026-07-18"
+  },
+  "trend_summary": "Q1 2026 grinding data confirms deepening regional divergence. Europe -7.8% YoY (lowest Q1 in 17 years), North America -3.8%. Asia surprised to the upside at +5.2% vs consensus -6.7%. Western demand destruction continues despite lower prices from 2024-25 highs. Asia providing partial offset \u2014 structurally stronger processing demand.",
+  "icco_balance": {
+    "season": "2024/25",
+    "surplus_deficit": "+75,000t surplus",
+    "global_production": "4.70Mt",
+    "global_grindings": "4.60Mt",
+    "source": "ICCO Mar 2026 update (revised up from +49,000t in Nov 2025)",
+    "note": "StoneX forecasts 287,000t surplus for 2025/26 and 267,000t for 2026/27"
+  }
+}

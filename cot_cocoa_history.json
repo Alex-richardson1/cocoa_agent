@@ -1,0 +1,870 @@
+[
+  {
+    "report_date": "2024-01-02",
+    "managed_money_net": 73391,
+    "managed_money_long": 105199,
+    "managed_money_short": 31808,
+    "total_open_interest": 313986
+  },
+  {
+    "report_date": "2024-01-09",
+    "managed_money_net": 70261,
+    "managed_money_long": 101617,
+    "managed_money_short": 31356,
+    "total_open_interest": 318120
+  },
+  {
+    "report_date": "2024-01-16",
+    "managed_money_net": 74665,
+    "managed_money_long": 108064,
+    "managed_money_short": 33399,
+    "total_open_interest": 325589
+  },
+  {
+    "report_date": "2024-01-23",
+    "managed_money_net": 82572,
+    "managed_money_long": 117258,
+    "managed_money_short": 34686,
+    "total_open_interest": 333669
+  },
+  {
+    "report_date": "2024-01-30",
+    "managed_money_net": 77231,
+    "managed_money_long": 110326,
+    "managed_money_short": 33095,
+    "total_open_interest": 327215
+  },
+  {
+    "report_date": "2024-02-06",
+    "managed_money_net": 69519,
+    "managed_money_long": 101988,
+    "managed_money_short": 32469,
+    "total_open_interest": 317683
+  },
+  {
+    "report_date": "2024-02-13",
+    "managed_money_net": 56217,
+    "managed_money_long": 82618,
+    "managed_money_short": 26401,
+    "total_open_interest": 271605
+  },
+  {
+    "report_date": "2024-02-20",
+    "managed_money_net": 52355,
+    "managed_money_long": 78033,
+    "managed_money_short": 25678,
+    "total_open_interest": 250109
+  },
+  {
+    "report_date": "2024-02-27",
+    "managed_money_net": 45112,
+    "managed_money_long": 68877,
+    "managed_money_short": 23765,
+    "total_open_interest": 220865
+  },
+  {
+    "report_date": "2024-03-05",
+    "managed_money_net": 43044,
+    "managed_money_long": 65774,
+    "managed_money_short": 22730,
+    "total_open_interest": 207303
+  },
+  {
+    "report_date": "2024-03-12",
+    "managed_money_net": 41314,
+    "managed_money_long": 65262,
+    "managed_money_short": 23948,
+    "total_open_interest": 210691
+  },
+  {
+    "report_date": "2024-03-19",
+    "managed_money_net": 34157,
+    "managed_money_long": 56302,
+    "managed_money_short": 22145,
+    "total_open_interest": 207168
+  },
+  {
+    "report_date": "2024-03-26",
+    "managed_money_net": 31306,
+    "managed_money_long": 51445,
+    "managed_money_short": 20139,
+    "total_open_interest": 201309
+  },
+  {
+    "report_date": "2024-04-02",
+    "managed_money_net": 25508,
+    "managed_money_long": 43014,
+    "managed_money_short": 17506,
+    "total_open_interest": 184072
+  },
+  {
+    "report_date": "2024-04-09",
+    "managed_money_net": 25395,
+    "managed_money_long": 41483,
+    "managed_money_short": 16088,
+    "total_open_interest": 165569
+  },
+  {
+    "report_date": "2024-04-16",
+    "managed_money_net": 20174,
+    "managed_money_long": 36584,
+    "managed_money_short": 16410,
+    "total_open_interest": 159325
+  },
+  {
+    "report_date": "2024-04-23",
+    "managed_money_net": 17512,
+    "managed_money_long": 34999,
+    "managed_money_short": 17487,
+    "total_open_interest": 152895
+  },
+  {
+    "report_date": "2024-04-30",
+    "managed_money_net": 20195,
+    "managed_money_long": 34542,
+    "managed_money_short": 14347,
+    "total_open_interest": 152039
+  },
+  {
+    "report_date": "2024-05-07",
+    "managed_money_net": 21504,
+    "managed_money_long": 33217,
+    "managed_money_short": 11713,
+    "total_open_interest": 147634
+  },
+  {
+    "report_date": "2024-05-14",
+    "managed_money_net": 21875,
+    "managed_money_long": 33226,
+    "managed_money_short": 11351,
+    "total_open_interest": 146340
+  },
+  {
+    "report_date": "2024-05-21",
+    "managed_money_net": 22535,
+    "managed_money_long": 33174,
+    "managed_money_short": 10639,
+    "total_open_interest": 147365
+  },
+  {
+    "report_date": "2024-05-28",
+    "managed_money_net": 25433,
+    "managed_money_long": 35146,
+    "managed_money_short": 9713,
+    "total_open_interest": 152919
+  },
+  {
+    "report_date": "2024-06-04",
+    "managed_money_net": 27637,
+    "managed_money_long": 36454,
+    "managed_money_short": 8817,
+    "total_open_interest": 155918
+  },
+  {
+    "report_date": "2024-06-11",
+    "managed_money_net": 27281,
+    "managed_money_long": 34801,
+    "managed_money_short": 7520,
+    "total_open_interest": 141332
+  },
+  {
+    "report_date": "2024-06-18",
+    "managed_money_net": 26534,
+    "managed_money_long": 36045,
+    "managed_money_short": 9511,
+    "total_open_interest": 137684
+  },
+  {
+    "report_date": "2024-06-25",
+    "managed_money_net": 23099,
+    "managed_money_long": 32576,
+    "managed_money_short": 9477,
+    "total_open_interest": 134640
+  },
+  {
+    "report_date": "2024-07-02",
+    "managed_money_net": 22039,
+    "managed_money_long": 31190,
+    "managed_money_short": 9151,
+    "total_open_interest": 135205
+  },
+  {
+    "report_date": "2024-07-09",
+    "managed_money_net": 22940,
+    "managed_money_long": 32873,
+    "managed_money_short": 9933,
+    "total_open_interest": 138433
+  },
+  {
+    "report_date": "2024-07-16",
+    "managed_money_net": 24071,
+    "managed_money_long": 35307,
+    "managed_money_short": 11236,
+    "total_open_interest": 137803
+  },
+  {
+    "report_date": "2024-07-23",
+    "managed_money_net": 25975,
+    "managed_money_long": 37199,
+    "managed_money_short": 11224,
+    "total_open_interest": 139449
+  },
+  {
+    "report_date": "2024-07-30",
+    "managed_money_net": 25727,
+    "managed_money_long": 37704,
+    "managed_money_short": 11977,
+    "total_open_interest": 140283
+  },
+  {
+    "report_date": "2024-08-06",
+    "managed_money_net": 27774,
+    "managed_money_long": 40192,
+    "managed_money_short": 12418,
+    "total_open_interest": 137261
+  },
+  {
+    "report_date": "2024-08-13",
+    "managed_money_net": 30301,
+    "managed_money_long": 42312,
+    "managed_money_short": 12011,
+    "total_open_interest": 134930
+  },
+  {
+    "report_date": "2024-08-20",
+    "managed_money_net": 31436,
+    "managed_money_long": 44134,
+    "managed_money_short": 12698,
+    "total_open_interest": 133444
+  },
+  {
+    "report_date": "2024-08-27",
+    "managed_money_net": 33267,
+    "managed_money_long": 45986,
+    "managed_money_short": 12719,
+    "total_open_interest": 138677
+  },
+  {
+    "report_date": "2024-09-03",
+    "managed_money_net": 32025,
+    "managed_money_long": 45127,
+    "managed_money_short": 13102,
+    "total_open_interest": 138428
+  },
+  {
+    "report_date": "2024-09-10",
+    "managed_money_net": 31709,
+    "managed_money_long": 42625,
+    "managed_money_short": 10916,
+    "total_open_interest": 138537
+  },
+  {
+    "report_date": "2024-09-17",
+    "managed_money_net": 35355,
+    "managed_money_long": 44865,
+    "managed_money_short": 9510,
+    "total_open_interest": 143433
+  },
+  {
+    "report_date": "2024-09-24",
+    "managed_money_net": 38004,
+    "managed_money_long": 47000,
+    "managed_money_short": 8996,
+    "total_open_interest": 147665
+  },
+  {
+    "report_date": "2024-10-01",
+    "managed_money_net": 39976,
+    "managed_money_long": 48061,
+    "managed_money_short": 8085,
+    "total_open_interest": 148224
+  },
+  {
+    "report_date": "2024-10-08",
+    "managed_money_net": 38120,
+    "managed_money_long": 45681,
+    "managed_money_short": 7561,
+    "total_open_interest": 137394
+  },
+  {
+    "report_date": "2024-10-15",
+    "managed_money_net": 40854,
+    "managed_money_long": 47892,
+    "managed_money_short": 7038,
+    "total_open_interest": 142634
+  },
+  {
+    "report_date": "2024-10-22",
+    "managed_money_net": 38614,
+    "managed_money_long": 45164,
+    "managed_money_short": 6550,
+    "total_open_interest": 140267
+  },
+  {
+    "report_date": "2024-10-29",
+    "managed_money_net": 35583,
+    "managed_money_long": 43285,
+    "managed_money_short": 7702,
+    "total_open_interest": 131389
+  },
+  {
+    "report_date": "2024-11-05",
+    "managed_money_net": 33353,
+    "managed_money_long": 41810,
+    "managed_money_short": 8457,
+    "total_open_interest": 125901
+  },
+  {
+    "report_date": "2024-11-12",
+    "managed_money_net": 34732,
+    "managed_money_long": 43051,
+    "managed_money_short": 8319,
+    "total_open_interest": 122337
+  },
+  {
+    "report_date": "2024-11-19",
+    "managed_money_net": 38020,
+    "managed_money_long": 46352,
+    "managed_money_short": 8332,
+    "total_open_interest": 129440
+  },
+  {
+    "report_date": "2024-11-26",
+    "managed_money_net": 41353,
+    "managed_money_long": 48940,
+    "managed_money_short": 7587,
+    "total_open_interest": 130183
+  },
+  {
+    "report_date": "2024-12-03",
+    "managed_money_net": 40391,
+    "managed_money_long": 47839,
+    "managed_money_short": 7448,
+    "total_open_interest": 130235
+  },
+  {
+    "report_date": "2024-12-10",
+    "managed_money_net": 38253,
+    "managed_money_long": 45215,
+    "managed_money_short": 6962,
+    "total_open_interest": 129117
+  },
+  {
+    "report_date": "2024-12-17",
+    "managed_money_net": 35626,
+    "managed_money_long": 42712,
+    "managed_money_short": 7086,
+    "total_open_interest": 127978
+  },
+  {
+    "report_date": "2024-12-24",
+    "managed_money_net": 37067,
+    "managed_money_long": 42772,
+    "managed_money_short": 5705,
+    "total_open_interest": 125355
+  },
+  {
+    "report_date": "2024-12-31",
+    "managed_money_net": 38090,
+    "managed_money_long": 43659,
+    "managed_money_short": 5569,
+    "total_open_interest": 125977
+  },
+  {
+    "report_date": "2025-01-07",
+    "managed_money_net": 35138,
+    "managed_money_long": 41176,
+    "managed_money_short": 6038,
+    "total_open_interest": 126583
+  },
+  {
+    "report_date": "2025-01-14",
+    "managed_money_net": 35498,
+    "managed_money_long": 41033,
+    "managed_money_short": 5535,
+    "total_open_interest": 124919
+  },
+  {
+    "report_date": "2025-01-21",
+    "managed_money_net": 35522,
+    "managed_money_long": 40745,
+    "managed_money_short": 5223,
+    "total_open_interest": 124343
+  },
+  {
+    "report_date": "2025-01-28",
+    "managed_money_net": 34351,
+    "managed_money_long": 39607,
+    "managed_money_short": 5256,
+    "total_open_interest": 123384
+  },
+  {
+    "report_date": "2025-02-04",
+    "managed_money_net": 31972,
+    "managed_money_long": 37087,
+    "managed_money_short": 5115,
+    "total_open_interest": 128423
+  },
+  {
+    "report_date": "2025-02-11",
+    "managed_money_net": 29808,
+    "managed_money_long": 34790,
+    "managed_money_short": 4982,
+    "total_open_interest": 121018
+  },
+  {
+    "report_date": "2025-02-18",
+    "managed_money_net": 29574,
+    "managed_money_long": 34312,
+    "managed_money_short": 4738,
+    "total_open_interest": 115974
+  },
+  {
+    "report_date": "2025-02-25",
+    "managed_money_net": 18466,
+    "managed_money_long": 23351,
+    "managed_money_short": 4885,
+    "total_open_interest": 108662
+  },
+  {
+    "report_date": "2025-03-04",
+    "managed_money_net": 16299,
+    "managed_money_long": 20766,
+    "managed_money_short": 4467,
+    "total_open_interest": 101302
+  },
+  {
+    "report_date": "2025-03-11",
+    "managed_money_net": 15733,
+    "managed_money_long": 19491,
+    "managed_money_short": 3758,
+    "total_open_interest": 104926
+  },
+  {
+    "report_date": "2025-03-18",
+    "managed_money_net": 14626,
+    "managed_money_long": 19661,
+    "managed_money_short": 5035,
+    "total_open_interest": 104840
+  },
+  {
+    "report_date": "2025-03-25",
+    "managed_money_net": 15340,
+    "managed_money_long": 19658,
+    "managed_money_short": 4318,
+    "total_open_interest": 103546
+  },
+  {
+    "report_date": "2025-04-01",
+    "managed_money_net": 17242,
+    "managed_money_long": 21179,
+    "managed_money_short": 3937,
+    "total_open_interest": 109183
+  },
+  {
+    "report_date": "2025-04-08",
+    "managed_money_net": 17166,
+    "managed_money_long": 20346,
+    "managed_money_short": 3180,
+    "total_open_interest": 95581
+  },
+  {
+    "report_date": "2025-04-15",
+    "managed_money_net": 12619,
+    "managed_money_long": 16119,
+    "managed_money_short": 3500,
+    "total_open_interest": 90046
+  },
+  {
+    "report_date": "2025-04-22",
+    "managed_money_net": 13933,
+    "managed_money_long": 18110,
+    "managed_money_short": 4177,
+    "total_open_interest": 86919
+  },
+  {
+    "report_date": "2025-04-29",
+    "managed_money_net": 15263,
+    "managed_money_long": 19939,
+    "managed_money_short": 4676,
+    "total_open_interest": 89727
+  },
+  {
+    "report_date": "2025-05-06",
+    "managed_money_net": 14810,
+    "managed_money_long": 19653,
+    "managed_money_short": 4843,
+    "total_open_interest": 90835
+  },
+  {
+    "report_date": "2025-05-13",
+    "managed_money_net": 18866,
+    "managed_money_long": 23141,
+    "managed_money_short": 4275,
+    "total_open_interest": 96891
+  },
+  {
+    "report_date": "2025-05-20",
+    "managed_money_net": 22069,
+    "managed_money_long": 27868,
+    "managed_money_short": 5799,
+    "total_open_interest": 104424
+  },
+  {
+    "report_date": "2025-05-27",
+    "managed_money_net": 19097,
+    "managed_money_long": 25375,
+    "managed_money_short": 6278,
+    "total_open_interest": 101488
+  },
+  {
+    "report_date": "2025-06-03",
+    "managed_money_net": 16174,
+    "managed_money_long": 22644,
+    "managed_money_short": 6470,
+    "total_open_interest": 100231
+  },
+  {
+    "report_date": "2025-06-10",
+    "managed_money_net": 16408,
+    "managed_money_long": 23674,
+    "managed_money_short": 7266,
+    "total_open_interest": 100052
+  },
+  {
+    "report_date": "2025-06-17",
+    "managed_money_net": 17471,
+    "managed_money_long": 24601,
+    "managed_money_short": 7130,
+    "total_open_interest": 89437
+  },
+  {
+    "report_date": "2025-06-24",
+    "managed_money_net": 14621,
+    "managed_money_long": 21832,
+    "managed_money_short": 7211,
+    "total_open_interest": 88225
+  },
+  {
+    "report_date": "2025-07-01",
+    "managed_money_net": 15242,
+    "managed_money_long": 22080,
+    "managed_money_short": 6838,
+    "total_open_interest": 88382
+  },
+  {
+    "report_date": "2025-07-08",
+    "managed_money_net": 13231,
+    "managed_money_long": 20083,
+    "managed_money_short": 6852,
+    "total_open_interest": 92353
+  },
+  {
+    "report_date": "2025-07-15",
+    "managed_money_net": 11857,
+    "managed_money_long": 19058,
+    "managed_money_short": 7201,
+    "total_open_interest": 95996
+  },
+  {
+    "report_date": "2025-07-22",
+    "managed_money_net": 9053,
+    "managed_money_long": 16395,
+    "managed_money_short": 7342,
+    "total_open_interest": 93203
+  },
+  {
+    "report_date": "2025-07-29",
+    "managed_money_net": 10798,
+    "managed_money_long": 17702,
+    "managed_money_short": 6904,
+    "total_open_interest": 93823
+  },
+  {
+    "report_date": "2025-08-05",
+    "managed_money_net": 11137,
+    "managed_money_long": 18166,
+    "managed_money_short": 7029,
+    "total_open_interest": 95061
+  },
+  {
+    "report_date": "2025-08-12",
+    "managed_money_net": 14296,
+    "managed_money_long": 20765,
+    "managed_money_short": 6469,
+    "total_open_interest": 97776
+  },
+  {
+    "report_date": "2025-08-19",
+    "managed_money_net": 13549,
+    "managed_money_long": 20805,
+    "managed_money_short": 7256,
+    "total_open_interest": 92010
+  },
+  {
+    "report_date": "2025-08-26",
+    "managed_money_net": 10753,
+    "managed_money_long": 19128,
+    "managed_money_short": 8375,
+    "total_open_interest": 89678
+  },
+  {
+    "report_date": "2025-09-02",
+    "managed_money_net": 9703,
+    "managed_money_long": 18611,
+    "managed_money_short": 8908,
+    "total_open_interest": 90201
+  },
+  {
+    "report_date": "2025-09-09",
+    "managed_money_net": 8610,
+    "managed_money_long": 17362,
+    "managed_money_short": 8752,
+    "total_open_interest": 93806
+  },
+  {
+    "report_date": "2025-09-16",
+    "managed_money_net": 8348,
+    "managed_money_long": 16986,
+    "managed_money_short": 8638,
+    "total_open_interest": 96954
+  },
+  {
+    "report_date": "2025-09-23",
+    "managed_money_net": 6852,
+    "managed_money_long": 16957,
+    "managed_money_short": 10105,
+    "total_open_interest": 103388
+  },
+  {
+    "report_date": "2025-09-30",
+    "managed_money_net": 6622,
+    "managed_money_long": 16981,
+    "managed_money_short": 10359,
+    "total_open_interest": 113029
+  },
+  {
+    "report_date": "2025-10-07",
+    "managed_money_net": 5730,
+    "managed_money_long": 18196,
+    "managed_money_short": 12466,
+    "total_open_interest": 120643
+  },
+  {
+    "report_date": "2025-10-14",
+    "managed_money_net": 609,
+    "managed_money_long": 16664,
+    "managed_money_short": 16055,
+    "total_open_interest": 120419
+  },
+  {
+    "report_date": "2025-10-21",
+    "managed_money_net": -918,
+    "managed_money_long": 16074,
+    "managed_money_short": 16992,
+    "total_open_interest": 122332
+  },
+  {
+    "report_date": "2025-10-28",
+    "managed_money_net": 1981,
+    "managed_money_long": 18070,
+    "managed_money_short": 16089,
+    "total_open_interest": 121995
+  },
+  {
+    "report_date": "2025-11-04",
+    "managed_money_net": 3999,
+    "managed_money_long": 18748,
+    "managed_money_short": 14749,
+    "total_open_interest": 122872
+  },
+  {
+    "report_date": "2025-11-10",
+    "managed_money_net": 1527,
+    "managed_money_long": 18470,
+    "managed_money_short": 16943,
+    "total_open_interest": 119330
+  },
+  {
+    "report_date": "2025-11-18",
+    "managed_money_net": -8567,
+    "managed_money_long": 17902,
+    "managed_money_short": 26469,
+    "total_open_interest": 115855
+  },
+  {
+    "report_date": "2025-11-25",
+    "managed_money_net": -11088,
+    "managed_money_long": 18772,
+    "managed_money_short": 29860,
+    "total_open_interest": 119337
+  },
+  {
+    "report_date": "2025-12-02",
+    "managed_money_net": -12703,
+    "managed_money_long": 17891,
+    "managed_money_short": 30594,
+    "total_open_interest": 119508
+  },
+  {
+    "report_date": "2025-12-09",
+    "managed_money_net": -8498,
+    "managed_money_long": 21255,
+    "managed_money_short": 29753,
+    "total_open_interest": 123407
+  },
+  {
+    "report_date": "2025-12-16",
+    "managed_money_net": -4433,
+    "managed_money_long": 21100,
+    "managed_money_short": 25533,
+    "total_open_interest": 119328
+  },
+  {
+    "report_date": "2025-12-23",
+    "managed_money_net": -3372,
+    "managed_money_long": 24285,
+    "managed_money_short": 27657,
+    "total_open_interest": 123937
+  },
+  {
+    "report_date": "2025-12-30",
+    "managed_money_net": -1716,
+    "managed_money_long": 25563,
+    "managed_money_short": 27279,
+    "total_open_interest": 124018
+  },
+  {
+    "report_date": "2026-01-06",
+    "managed_money_net": 141,
+    "managed_money_long": 27319,
+    "managed_money_short": 27178,
+    "total_open_interest": 127271
+  },
+  {
+    "report_date": "2026-01-13",
+    "managed_money_net": -7107,
+    "managed_money_long": 20438,
+    "managed_money_short": 27545,
+    "total_open_interest": 138452
+  },
+  {
+    "report_date": "2026-01-20",
+    "managed_money_net": -11329,
+    "managed_money_long": 19447,
+    "managed_money_short": 30776,
+    "total_open_interest": 145503
+  },
+  {
+    "report_date": "2026-01-27",
+    "managed_money_net": -9503,
+    "managed_money_long": 20520,
+    "managed_money_short": 30023,
+    "total_open_interest": 149397
+  },
+  {
+    "report_date": "2026-02-03",
+    "managed_money_net": -10330,
+    "managed_money_long": 22079,
+    "managed_money_short": 32409,
+    "total_open_interest": 160254
+  },
+  {
+    "report_date": "2026-02-10",
+    "managed_money_net": -11494,
+    "managed_money_long": 21263,
+    "managed_money_short": 32757,
+    "total_open_interest": 162798
+  },
+  {
+    "report_date": "2026-02-17",
+    "managed_money_net": -11874,
+    "managed_money_long": 21141,
+    "managed_money_short": 33015,
+    "total_open_interest": 154642
+  },
+  {
+    "report_date": "2026-02-24",
+    "managed_money_net": -6916,
+    "managed_money_long": 27536,
+    "managed_money_short": 34452,
+    "total_open_interest": 173446
+  },
+  {
+    "report_date": "2026-03-03",
+    "managed_money_net": -4087,
+    "managed_money_long": 31673,
+    "managed_money_short": 35760,
+    "total_open_interest": 191812
+  },
+  {
+    "report_date": "2026-03-10",
+    "managed_money_net": -7726,
+    "managed_money_long": 30965,
+    "managed_money_short": 38691,
+    "total_open_interest": 192004
+  },
+  {
+    "report_date": "2026-03-17",
+    "managed_money_net": -7104,
+    "managed_money_long": 29425,
+    "managed_money_short": 36529,
+    "total_open_interest": 189306
+  },
+  {
+    "report_date": "2026-03-24",
+    "managed_money_net": -9114,
+    "managed_money_long": 29618,
+    "managed_money_short": 38732,
+    "total_open_interest": 194510
+  },
+  {
+    "report_date": "2026-03-31",
+    "managed_money_net": -10132,
+    "managed_money_long": 30125,
+    "managed_money_short": 40257,
+    "total_open_interest": 203517
+  },
+  {
+    "report_date": "2026-04-07",
+    "managed_money_net": -12616,
+    "managed_money_long": 29761,
+    "managed_money_short": 42377,
+    "total_open_interest": 204934
+  },
+  {
+    "report_date": "2026-04-14",
+    "managed_money_net": -14015,
+    "managed_money_long": 29553,
+    "managed_money_short": 43568,
+    "total_open_interest": 196601
+  },
+  {
+    "report_date": "2026-04-21",
+    "managed_money_net": -13361,
+    "managed_money_long": 30321,
+    "managed_money_short": 43682,
+    "total_open_interest": 194519
+  },
+  {
+    "report_date": "2026-04-28",
+    "managed_money_net": -17106,
+    "managed_money_long": 29420,
+    "managed_money_short": 46526,
+    "total_open_interest": 197114
+  },
+  {
+    "report_date": "2026-05-05",
+    "managed_money_net": -11592,
+    "managed_money_long": 31662,
+    "managed_money_short": 43254,
+    "total_open_interest": 200360
+  },
+  {
+    "report_date": "2026-05-12",
+    "managed_money_net": -9912,
+    "managed_money_long": 26497,
+    "managed_money_short": 36409,
+    "total_open_interest": 194369
+  }
+]
