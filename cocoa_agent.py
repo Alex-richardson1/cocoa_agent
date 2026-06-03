@@ -82,6 +82,20 @@ try:
 except ImportError:
     SCORER_AVAILABLE = False
 
+# Optional — continuous learning & weekly review
+try:
+    from cocoa_weekly_review import (
+        record_shadow_prediction,
+        score_shadow_predictions,
+        check_big_misses,
+        generate_weekly_report,
+        should_generate_weekly_report,
+        build_learning_prompt,
+    )
+    WEEKLY_REVIEW_AVAILABLE = True
+except ImportError:
+    WEEKLY_REVIEW_AVAILABLE = False
+
 load_dotenv()
 
 logging.basicConfig(
@@ -803,6 +817,16 @@ By Region (latest period):
     else:
         cot_block = "\n## CFTC COT POSITIONING\n  Data unavailable\n"
 
+    # ── Continuous learning prompt ──────────────────────────
+    learning_block = ""
+    if WEEKLY_REVIEW_AVAILABLE:
+        try:
+            learning_block = build_learning_prompt()
+            if learning_block:
+                log.info("  ✅ Learning block injected into prompt")
+        except Exception as e:
+            log.warning(f"Learning prompt generation failed (non-critical): {e}")
+
     # ── Prediction accuracy feedback ─────────────────────────
     feedback_block = ""
     if FEEDBACK_AVAILABLE:
@@ -839,6 +863,7 @@ Data snapshot generated at: {generated_at}
 {crop_block}
 {stress_block}
 {cot_block}
+{learning_block}
 {feedback_block}
 Apply your analytical framework: assess fair value from fundamentals (supply, demand, stocks, macro),
 then use technicals to determine timing. Produce your VALUATION BIAS and TIMING SIGNAL.
@@ -1153,6 +1178,21 @@ def run_agent(snapshot_file: str = SNAPSHOT_FILE, dry_run: bool = False):
         except Exception as e:
             log.warning(f"Prediction evaluation failed (non-critical): {e}")
 
+    # ── Continuous learning: score shadow predictions + check big misses ──
+    if WEEKLY_REVIEW_AVAILABLE:
+        try:
+            eval_price = snapshot.get("technicals", {}).get("price", {}).get("current")
+            if eval_price:
+                n_shadow = score_shadow_predictions(float(eval_price))
+                if n_shadow > 0:
+                    log.info(f"  📊 Scored {n_shadow} shadow prediction horizon(s)")
+
+                big_misses = check_big_misses(float(eval_price))
+                if big_misses:
+                    log.warning(f"  ⚠️ {len(big_misses)} big miss(es) detected!")
+        except Exception as e:
+            log.warning(f"Shadow scoring failed (non-critical): {e}")
+
     log.info("Building prompt...")
     user_prompt = build_user_prompt(snapshot)
 
@@ -1224,6 +1264,27 @@ def run_agent(snapshot_file: str = SNAPSHOT_FILE, dry_run: bool = False):
         log.info("  --force-alert: overriding alert level to OPPORTUNITY")
         alert_level = "OPPORTUNITY"
 
+    # ── Record shadow prediction (always, regardless of alert level) ──
+    if WEEKLY_REVIEW_AVAILABLE and FEEDBACK_AVAILABLE:
+        try:
+            parsed = extract_recommendation(raw_report)
+            record_shadow_prediction(snapshot, parsed, opp_result)
+        except Exception as e:
+            log.warning(f"Shadow prediction recording failed (non-critical): {e}")
+
+    # ── Weekly report (on designated day) ─────────────────
+    weekly_report = None
+    if WEEKLY_REVIEW_AVAILABLE and should_generate_weekly_report():
+        try:
+            eval_price = snapshot.get("technicals", {}).get("price", {}).get("current")
+            if eval_price:
+                weekly_report = generate_weekly_report(
+                    float(eval_price), snapshot, opp_result
+                )
+                log.info("  📋 Weekly report generated")
+        except Exception as e:
+            log.warning(f"Weekly report generation failed (non-critical): {e}")
+
     # ── Print to console (always — for logging/debugging) ─
     print("\n" + formatted_report)
     if opp_result:
@@ -1262,6 +1323,14 @@ def run_agent(snapshot_file: str = SNAPSHOT_FILE, dry_run: bool = False):
 
     if alert_level in ("WATCHLIST", "OPPORTUNITY") and not delivered:
         log.info("No delivery method configured — report saved to file only.")
+
+    # ── Send weekly report if generated ───────────────────
+    if weekly_report and TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID:
+        # Truncate for Telegram if needed (4096 char limit)
+        if len(weekly_report) > 4000:
+            weekly_report = weekly_report[:3950] + "\n\n... (truncated)"
+        send_telegram(weekly_report)
+        log.info("  📋 Weekly report sent to Telegram")
 
     log.info(f"\n✅ Agent run complete. Alert level: {alert_level}")
     return formatted_report
