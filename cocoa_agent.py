@@ -82,6 +82,17 @@ try:
 except ImportError:
     SCORER_AVAILABLE = False
 
+# Optional — weekly review & continuous learning
+try:
+    from cocoa_weekly_review import (
+        record_shadow_prediction, score_shadow_predictions,
+        check_big_misses, generate_weekly_report,
+        should_generate_weekly_report, build_learning_prompt,
+    )
+    WEEKLY_REVIEW_AVAILABLE = True
+except ImportError:
+    WEEKLY_REVIEW_AVAILABLE = False
+
 load_dotenv()
 
 logging.basicConfig(
@@ -820,6 +831,16 @@ By Region (latest period):
         except Exception as e:
             log.warning(f"Feedback generation failed (non-critical): {e}")
 
+    # ── Continuous learning block (shadow accuracy + post-mortems) ──
+    learning_block = ""
+    if WEEKLY_REVIEW_AVAILABLE:
+        try:
+            learning_text = build_learning_prompt()
+            if learning_text:
+                learning_block = f"\n{learning_text}\n"
+        except Exception as e:
+            log.warning(f"Learning prompt generation failed (non-critical): {e}")
+
     # ── Assemble full prompt ──────────────────────────────────
     generated_at = snapshot.get("generated_at", datetime.now(timezone.utc).isoformat())
 
@@ -840,6 +861,7 @@ Data snapshot generated at: {generated_at}
 {stress_block}
 {cot_block}
 {feedback_block}
+{learning_block}
 Apply your analytical framework: assess fair value from fundamentals (supply, demand, stocks, macro),
 then use technicals to determine timing. Produce your VALUATION BIAS and TIMING SIGNAL.
 """
@@ -1153,6 +1175,23 @@ def run_agent(snapshot_file: str = SNAPSHOT_FILE, dry_run: bool = False):
         except Exception as e:
             log.warning(f"Prediction evaluation failed (non-critical): {e}")
 
+    # ── Shadow prediction scoring & big-miss detection ────
+    if WEEKLY_REVIEW_AVAILABLE:
+        try:
+            eval_price = float(
+                snapshot.get("technicals", {}).get("price", {}).get("current", 0)
+            ) if snapshot.get("technicals", {}).get("price", {}).get("current") else None
+
+            if eval_price:
+                n_shadow = score_shadow_predictions(eval_price)
+                if n_shadow > 0:
+                    log.info(f"  📊 Scored {n_shadow} shadow prediction horizon(s)")
+                misses = check_big_misses(eval_price)
+                if misses:
+                    log.warning(f"  ⚠️  {len(misses)} big miss(es) detected this run")
+        except Exception as e:
+            log.warning(f"Shadow scoring / big-miss detection failed (non-critical): {e}")
+
     log.info("Building prompt...")
     user_prompt = build_user_prompt(snapshot)
 
@@ -1178,7 +1217,8 @@ def run_agent(snapshot_file: str = SNAPSHOT_FILE, dry_run: bool = False):
     # ── Opportunity Scoring ───────────────────────────────
     # This is the core decision: should we alert the user or stay silent?
     alert_level = "OPPORTUNITY"   # Default: always send (fallback if scorer unavailable)
-    opp_result = None
+    opp_result  = None
+    parsed_rec  = {}              # Initialised here so it's always in scope below
 
     if SCORER_AVAILABLE and FEEDBACK_AVAILABLE:
         try:
@@ -1218,6 +1258,26 @@ def run_agent(snapshot_file: str = SNAPSHOT_FILE, dry_run: bool = False):
             log_opportunity(opp_result, snapshot)
         except Exception as e:
             log.warning(f"Opportunity scoring failed: {e}")
+
+    # ── Shadow prediction recording (every run, regardless of alert level) ──
+    if WEEKLY_REVIEW_AVAILABLE:
+        try:
+            record_shadow_prediction(snapshot, parsed_rec, opp_result)
+        except Exception as e:
+            log.warning(f"Shadow prediction recording failed (non-critical): {e}")
+
+        # ── Weekly report (Sundays only, once per day) ────────────────────
+        try:
+            if should_generate_weekly_report():
+                current_price = snapshot.get("technicals", {}).get("price", {}).get("current")
+                if current_price:
+                    weekly_report = generate_weekly_report(
+                        float(current_price), snapshot, opp_result
+                    )
+                    log.info("  📋 Weekly report generated — sending via Telegram")
+                    send_telegram(weekly_report)
+        except Exception as e:
+            log.warning(f"Weekly report generation failed (non-critical): {e}")
 
     # Override alert level if --force-alert was set
     if os.environ.get("COCOA_FORCE_ALERT") == "1":
