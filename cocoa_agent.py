@@ -814,6 +814,16 @@ By Region (latest period):
     else:
         cot_block = "\n## CFTC COT POSITIONING\n  Data unavailable\n"
 
+    # ── Continuous learning prompt ──────────────────────────
+    learning_block = ""
+    if WEEKLY_REVIEW_AVAILABLE:
+        try:
+            learning_block = build_learning_prompt()
+            if learning_block:
+                log.info("  ✅ Learning block injected into prompt")
+        except Exception as e:
+            log.warning(f"Learning prompt generation failed (non-critical): {e}")
+
     # ── Prediction accuracy feedback ─────────────────────────
     feedback_block = ""
     if FEEDBACK_AVAILABLE:
@@ -860,6 +870,7 @@ Data snapshot generated at: {generated_at}
 {crop_block}
 {stress_block}
 {cot_block}
+{learning_block}
 {feedback_block}
 {learning_block}
 Apply your analytical framework: assess fair value from fundamentals (supply, demand, stocks, macro),
@@ -1284,6 +1295,27 @@ def run_agent(snapshot_file: str = SNAPSHOT_FILE, dry_run: bool = False):
         log.info("  --force-alert: overriding alert level to OPPORTUNITY")
         alert_level = "OPPORTUNITY"
 
+    # ── Record shadow prediction (always, regardless of alert level) ──
+    if WEEKLY_REVIEW_AVAILABLE and FEEDBACK_AVAILABLE:
+        try:
+            parsed = extract_recommendation(raw_report)
+            record_shadow_prediction(snapshot, parsed, opp_result)
+        except Exception as e:
+            log.warning(f"Shadow prediction recording failed (non-critical): {e}")
+
+    # ── Weekly report (on designated day) ─────────────────
+    weekly_report = None
+    if WEEKLY_REVIEW_AVAILABLE and should_generate_weekly_report():
+        try:
+            eval_price = snapshot.get("technicals", {}).get("price", {}).get("current")
+            if eval_price:
+                weekly_report = generate_weekly_report(
+                    float(eval_price), snapshot, opp_result
+                )
+                log.info("  📋 Weekly report generated")
+        except Exception as e:
+            log.warning(f"Weekly report generation failed (non-critical): {e}")
+
     # ── Print to console (always — for logging/debugging) ─
     print("\n" + formatted_report)
     if opp_result:
@@ -1322,6 +1354,14 @@ def run_agent(snapshot_file: str = SNAPSHOT_FILE, dry_run: bool = False):
 
     if alert_level in ("WATCHLIST", "OPPORTUNITY") and not delivered:
         log.info("No delivery method configured — report saved to file only.")
+
+    # ── Send weekly report if generated ───────────────────
+    if weekly_report and TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID:
+        # Truncate for Telegram if needed (4096 char limit)
+        if len(weekly_report) > 4000:
+            weekly_report = weekly_report[:3950] + "\n\n... (truncated)"
+        send_telegram(weekly_report)
+        log.info("  📋 Weekly report sent to Telegram")
 
     log.info(f"\n✅ Agent run complete. Alert level: {alert_level}")
     return formatted_report
