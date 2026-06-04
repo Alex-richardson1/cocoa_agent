@@ -184,7 +184,7 @@ def run_daily():
         title=f"Daily run {time.strftime('%Y-%m-%d')}",
         resources=[{
             "type": "memory_store",
-            "id": memory_store_id,
+            "memory_store_id": memory_store_id,
             "access": "read_write",
         }],
     )
