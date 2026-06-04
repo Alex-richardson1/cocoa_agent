@@ -1,0 +1,34 @@
+name: Daily Cocoa Surveillance
+
+on:
+  schedule:
+    # Run at 08:00 UTC every day
+    - cron: '0 8 * * *'
+  workflow_dispatch:  # Allow manual trigger from GitHub UI
+
+jobs:
+  daily-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install anthropic
+
+      - name: Run daily trigger
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          AGENT_ID: ${{ secrets.AGENT_ID }}
+          ENVIRONMENT_ID: ${{ secrets.ENVIRONMENT_ID }}
+          MEMORY_STORE_ID: ${{ secrets.MEMORY_STORE_ID }}
+          GEE_SERVICE_ACCOUNT_JSON: ${{ secrets.GEE_SERVICE_ACCOUNT_JSON }}
+          COCOA_ENV_FILE: ${{ secrets.COCOA_ENV_FILE }}
+        run: python daily_trigger.py
