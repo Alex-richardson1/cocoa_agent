@@ -190,25 +190,19 @@ def run_daily():
     )
     print(f"Session ID: {session.id}")
 
-    # ── Upload GEE credentials if available ───────
-    gee_json = os.environ.get("GEE_SERVICE_ACCOUNT_JSON")
-    if gee_json:
-        print("Uploading GEE credentials...")
-        client.beta.sessions.files.upload(
-            session.id,
-            file=gee_json.encode(),
-            path="/workspace/gee-service-account.json",
-        )
+        # ── Build instruction with credentials inline ─
+    gee_json = os.environ.get("GEE_SERVICE_ACCOUNT_JSON", "")
+    env_content = os.environ.get("COCOA_ENV_FILE", "")
 
-    # ── Upload .env if available ──────────────────
-    env_content = os.environ.get("COCOA_ENV_FILE")
+    setup_commands = ""
+    if gee_json:
+        # Escape single quotes for bash heredoc safety
+        gee_escaped = gee_json.replace("'", "'\\''")
+        setup_commands += f"\nAlso create /workspace/gee-service-account.json with this content:\n{gee_json}\n"
     if env_content:
-        print("Uploading .env...")
-        client.beta.sessions.files.upload(
-            session.id,
-            file=env_content.encode(),
-            path="/workspace/.env",
-        )
+        setup_commands += f"\nAlso create /workspace/.env with this content:\n{env_content}\n"
+
+    full_instruction = setup_commands + "\n" + DAILY_INSTRUCTION
 
     # ── Send instruction and stream response ──────
     print("\nRunning pipeline...")
@@ -219,10 +213,8 @@ def run_daily():
             session.id,
             events=[{
                 "type": "user.message",
-                "content": [{"type": "text", "text": DAILY_INSTRUCTION}],
+                "content": [{"type": "text", "text": full_instruction}],
             }],
-        )
-
         for event in stream:
             if event.type == "agent.message":
                 for block in event.content:
