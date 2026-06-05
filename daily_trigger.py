@@ -215,6 +215,7 @@ def run_daily():
                 "type": "user.message",
                 "content": [{"type": "text", "text": full_instruction}],
             }],
+        )
         for event in stream:
             if event.type == "agent.message":
                 for block in event.content:
