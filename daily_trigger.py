@@ -39,60 +39,39 @@ ENVIRONMENT_ID = os.environ.get("ENVIRONMENT_ID", "")
 MEMORY_STORE_ID_FILE = ".memory_store_id"
 
 DAILY_INSTRUCTION = """
-Run the full cocoa market surveillance pipeline.
+Run the cocoa market surveillance pipeline. Follow these steps EXACTLY.
+Do NOT recreate any Python scripts — they come from git.
+Do NOT send any Telegram messages yourself — the Python scripts handle alerts.
+Do NOT improvise or add extra steps. Just execute the commands below.
 
-IMPORTANT: Your persistent state lives in /mnt/memory/state/. 
-Copy state files to your working directory before running scripts,
-and copy updated state files back after.
+1. CLONE REPO (fresh container each session):
+   cd /workspace && git clone https://github.com/Alex-richardson1/cocoa_agent.git . 2>/dev/null || git pull origin main
 
-1. SETUP
-   cd /workspace
-   git pull origin main
+2. INSTALL DEPENDENCIES (quiet):
    pip install -q pandas yfinance requests feedparser python-dotenv anthropic ta earthengine-api 2>/dev/null
 
-2. RESTORE STATE from memory
-   mkdir -p /mnt/memory/state
-   cp /mnt/memory/state/*.json /workspace/ 2>/dev/null || echo "No prior state (first run)"
+3. RESTORE STATE from memory:
+   mkdir -p /mnt/memory/cocoa-surveillance-memory/state
+   cp /mnt/memory/cocoa-surveillance-memory/state/*.json /workspace/ 2>/dev/null || echo "No prior state"
 
-3. GEE AUTH
-   Set up /workspace/gee-service-account.json if the GEE_SERVICE_ACCOUNT_JSON 
-   env var is available, or if it already exists.
+4. CREATE CREDENTIALS:
+   The .env and gee-service-account.json content is provided above this instruction — create those files in /workspace/ if not already present.
 
-4. DATA GATHERING
-   cd /workspace && python cocoa_data_gatherer.py
+5. RUN DATA GATHERER:
+   cd /workspace && python3 cocoa_data_gatherer.py
 
-5. CROP MONITOR (if GEE available)
-   python cocoa_crop_monitor.py --incremental
-   (Skip if GEE auth fails — log the error but continue)
+6. RUN CROP MONITOR (skip if GEE fails):
+   python3 cocoa_crop_monitor.py --incremental 2>/dev/null || echo "Crop monitor skipped"
 
-6. ANALYSIS
-   python cocoa_agent.py
+7. RUN AGENT (no --force-alert):
+   python3 cocoa_agent.py
 
-7. SAVE STATE to memory
-   Copy all state files back to persistent memory:
-   cp /workspace/cocoa_shadow_ledger.json /mnt/memory/state/ 2>/dev/null
-   cp /workspace/cocoa_prediction_ledger.json /mnt/memory/state/ 2>/dev/null
-   cp /workspace/cocoa_opportunity_log.json /mnt/memory/state/ 2>/dev/null
-   cp /workspace/cocoa_postmortems.json /mnt/memory/state/ 2>/dev/null
-   cp /workspace/cocoa_weekly_history.json /mnt/memory/state/ 2>/dev/null
-   cp /workspace/cot_cocoa_history.json /mnt/memory/state/ 2>/dev/null
-   cp /workspace/cocoa_crop_health.json /mnt/memory/state/ 2>/dev/null
-   cp /workspace/climatology_cache.json /mnt/memory/state/ 2>/dev/null
-   cp /workspace/cocoa_feedback_summary.json /mnt/memory/state/ 2>/dev/null
-   cp /workspace/cocoa_daily_report.md /mnt/memory/state/ 2>/dev/null
-   cp /workspace/cocoa_weekly_report.md /mnt/memory/state/ 2>/dev/null
+8. SAVE STATE back to memory:
+   cp /workspace/cocoa_shadow_ledger.json /workspace/cocoa_prediction_ledger.json /workspace/cocoa_opportunity_log.json /workspace/cot_cocoa_history.json /workspace/cocoa_crop_health.json /workspace/cocoa_feedback_summary.json /workspace/climatology_cache.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null
+   cp /workspace/cocoa_postmortems.json /workspace/cocoa_weekly_history.json /workspace/cocoa_weekly_report.md /workspace/cocoa_daily_report.md /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null
 
-8. SAVE LEARNINGS to memory
-   If any post-mortems were generated, write a brief summary to /mnt/memory/learnings/:
-   mkdir -p /mnt/memory/learnings
-   Copy any new post-mortem narratives to /mnt/memory/learnings/YYYY-MM-DD_postmortem.md
-
-9. REPORT
-   Print the opportunity score, alert level, and one-line summary.
-   Print whether weekly report was generated.
-   Print any big misses detected.
-
-Do NOT use --force-alert. Let the opportunity scorer decide naturally.
+9. PRINT SUMMARY (console only — no Telegram):
+   Print the opportunity score, alert level, and one-line summary. Nothing else.
 """
 
 
