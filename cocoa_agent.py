@@ -112,6 +112,22 @@ REPORT_OUTPUT_FILE   = "cocoa_daily_report.md"
 # Delivery config
 TELEGRAM_BOT_TOKEN   = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID     = os.getenv("TELEGRAM_CHAT_ID", "")
+
+# Fallback: read Telegram credentials from memory store if not in env
+if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+    for creds_path in [
+        "/mnt/memory/cocoa-surveillance-memory/state/telegram_creds.json",
+        "telegram_creds.json",
+    ]:
+        try:
+            import json as _json
+            with open(creds_path, "r") as f:
+                _creds = _json.load(f)
+            TELEGRAM_BOT_TOKEN = TELEGRAM_BOT_TOKEN or _creds.get("bot_token", "")
+            TELEGRAM_CHAT_ID = TELEGRAM_CHAT_ID or _creds.get("chat_id", "")
+            break
+        except (FileNotFoundError, ValueError):
+            continue
 EMAIL_FROM           = os.getenv("EMAIL_FROM", "")
 EMAIL_TO             = os.getenv("EMAIL_TO", "")
 EMAIL_APP_PASSWORD   = os.getenv("EMAIL_APP_PASSWORD", "")
