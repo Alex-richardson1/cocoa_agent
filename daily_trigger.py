@@ -45,10 +45,10 @@ Do NOT send any Telegram messages yourself — the Python scripts handle alerts.
 Do NOT improvise or add extra steps. Just execute the commands below.
 
 1. CLONE REPO (fresh container each session):
-   cd /workspace && git clone https://github.com/Alex-richardson1/cocoa_agent.git . 2>/dev/null || git pull origin main
+   cd /workspace && git init && git remote add origin https://github.com/Alex-richardson1/cocoa_agent.git 2>/dev/null; git fetch origin && git checkout origin/main -- . 2>/dev/null
 
 2. INSTALL DEPENDENCIES (quiet):
-   pip install -q pandas yfinance requests feedparser python-dotenv anthropic ta earthengine-api 2>/dev/null
+   pip install -q pandas yfinance requests feedparser python-dotenv anthropic ta earthengine-api 2>/dev/null || true
 
 3. RESTORE STATE from memory:
    mkdir -p /mnt/memory/cocoa-surveillance-memory/state
