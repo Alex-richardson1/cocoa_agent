@@ -44,18 +44,19 @@ Do NOT recreate any Python scripts — they come from git.
 Do NOT send any Telegram messages yourself — the Python scripts handle alerts.
 Do NOT improvise or add extra steps. Just execute the commands below.
 
-1. CLONE REPO (fresh container each session):
-   cd /workspace && git init && git remote add origin https://github.com/Alex-richardson1/cocoa_agent.git 2>/dev/null; git fetch origin && git checkout origin/main -- . 2>/dev/null
+1. CLONE REPO (workspace must be empty for this):
+   cd /workspace && git clone https://github.com/Alex-richardson1/cocoa_agent.git . 2>/dev/null || (git init && git remote add origin https://github.com/Alex-richardson1/cocoa_agent.git 2>/dev/null; git fetch origin && git checkout origin/main -- .)
 
-2. INSTALL DEPENDENCIES (quiet):
+2. MOVE CREDENTIALS into workspace:
+   cp /tmp/.env /workspace/.env 2>/dev/null
+   cp /tmp/gee-service-account.json /workspace/gee-service-account.json 2>/dev/null
+
+3. INSTALL DEPENDENCIES (do not retry failures):
    pip install -q pandas yfinance requests feedparser python-dotenv anthropic ta earthengine-api 2>/dev/null || true
 
-3. RESTORE STATE from memory:
+4. RESTORE STATE from memory:
    mkdir -p /mnt/memory/cocoa-surveillance-memory/state
    cp /mnt/memory/cocoa-surveillance-memory/state/*.json /workspace/ 2>/dev/null || echo "No prior state"
-
-4. CREATE CREDENTIALS:
-   The .env and gee-service-account.json content is provided above this instruction — create those files in /workspace/ if not already present.
 
 5. RUN DATA GATHERER:
    cd /workspace && python3 cocoa_data_gatherer.py
