@@ -175,11 +175,9 @@ def run_daily():
 
     setup_commands = ""
     if gee_json:
-        # Escape single quotes for bash heredoc safety
-        gee_escaped = gee_json.replace("'", "'\\''")
-        setup_commands += f"\nAlso create /workspace/gee-service-account.json with this content:\n{gee_json}\n"
+        setup_commands += f"\nCreate /tmp/gee-service-account.json with this content:\n{gee_json}\n"
     if env_content:
-        setup_commands += f"\nAlso create /workspace/.env with this content:\n{env_content}\n"
+        setup_commands += f"\nCreate /tmp/.env with this content:\n{env_content}\n"
 
     full_instruction = setup_commands + "\n" + DAILY_INSTRUCTION
 
