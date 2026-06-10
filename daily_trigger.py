@@ -52,7 +52,7 @@ Do NOT improvise or add extra steps. Just execute the commands below.
    cp /tmp/gee-service-account.json /workspace/gee-service-account.json 2>/dev/null
 
 3. INSTALL DEPENDENCIES (do not retry failures):
-  pip install -q pandas numpy yfinance requests feedparser python-dotenv anthropic earthengine-api 2>/dev/null || true
+  pip install -q pandas numpy yfinance requests feedparser python-dotenv httpx anthropic earthengine-api 2>/dev/null || true
   python3 -c "
   import importlib, pathlib, site
   # Create sgmllib stub if missing (removed in Python 3.11, needed by feedparser)
