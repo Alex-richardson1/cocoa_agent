@@ -11,7 +11,7 @@
     6. Saves a structured JSON snapshot for the AI analysis step
 
   SETUP:
-    pip install pandas pandas-ta requests feedparser python-dotenv yfinance
+    pip install pandas numpy requests python-dotenv yfinance
 
   Optional (for richer news):
     Get a free key at https://newsapi.org and add to .env:
@@ -23,13 +23,18 @@ import os
 import json
 import logging
 import requests
-import feedparser
+
+try:
+    import feedparser
+    FEEDPARSER_AVAILABLE = True
+except ImportError:
+    FEEDPARSER_AVAILABLE = False
 
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 
+import numpy as np
 import pandas as pd
-import pandas_ta as ta
 
 # Optional — combined stress signal
 try:
@@ -174,11 +179,9 @@ def fetch_price_data(period: str = "6mo") -> pd.DataFrame:
 
 def compute_indicators(df: pd.DataFrame, raw_close: pd.Series = None) -> dict:
     """
-    Compute key technical indicators and return a summary dict.
-    All values are taken from the most recent complete session.
-
-    raw_close: unadjusted close prices for period changes (1w, 1m).
-               If None, falls back to adjusted close.
+    Compute key technical indicators using pure pandas/numpy.
+    No external TA library required — all indicators are standard
+    calculations that only need pandas and numpy.
     """
     log.info("Computing technical indicators...")
 
@@ -186,33 +189,77 @@ def compute_indicators(df: pd.DataFrame, raw_close: pd.Series = None) -> dict:
     high  = df["High"]
     low   = df["Low"]
     vol   = df["Volume"]
-    # Use raw (unadjusted) closes for period change calculations
-    # so that rollover adjustments don't distort "how much did price move"
     raw = raw_close if raw_close is not None else close
 
-    # ── Trend ──────────────────────────────────
-    ema_20  = ta.ema(close, length=20)
-    ema_50  = ta.ema(close, length=50)
-    ema_200 = ta.ema(close, length=200)
+    # ── Helper: EMA ────────────────────────────────
+    def ema(series, span):
+        return series.ewm(span=span, adjust=False).mean()
 
-    # ── Momentum ───────────────────────────────
-    rsi_14  = ta.rsi(close, length=14)
-    macd_df = ta.macd(close, fast=12, slow=26, signal=9)
+    # ── Helper: RSI ────────────────────────────────
+    def rsi(series, period=14):
+        delta = series.diff()
+        gain = delta.where(delta > 0, 0.0)
+        loss = (-delta).where(delta < 0, 0.0)
+        avg_gain = gain.ewm(com=period - 1, min_periods=period).mean()
+        avg_loss = loss.ewm(com=period - 1, min_periods=period).mean()
+        rs = avg_gain / avg_loss
+        return 100 - (100 / (1 + rs))
 
-    # ── Volatility ─────────────────────────────
-    bb      = ta.bbands(close, length=20, std=2)
-    # Detect BB column names dynamically — pandas_ta version differences
-    # can produce "BBU_20_2.0" or "BBU_20_2" etc.
-    bb_upper_col = bb_mid_col = bb_lower_col = None
-    if bb is not None:
-        for col in bb.columns:
-            if col.startswith("BBU"): bb_upper_col = col
-            elif col.startswith("BBM"): bb_mid_col  = col
-            elif col.startswith("BBL"): bb_lower_col = col
-    atr_14  = ta.atr(high, low, close, length=14)
+    # ── Helper: MACD ───────────────────────────────
+    def macd(series, fast=12, slow=26, signal=9):
+        ema_fast = ema(series, fast)
+        ema_slow = ema(series, slow)
+        macd_line = ema_fast - ema_slow
+        signal_line = ema(macd_line, signal)
+        histogram = macd_line - signal_line
+        return macd_line, signal_line, histogram
 
-    # ── Volume ─────────────────────────────────
-    obv     = ta.obv(close, vol)
+    # ── Helper: Bollinger Bands ────────────────────
+    def bbands(series, period=20, std_dev=2):
+        mid = series.rolling(period).mean()
+        std = series.rolling(period).std()
+        upper = mid + std_dev * std
+        lower = mid - std_dev * std
+        return upper, mid, lower
+
+    # ── Helper: ATR ────────────────────────────────
+    def atr(high_s, low_s, close_s, period=14):
+        tr1 = high_s - low_s
+        tr2 = (high_s - close_s.shift(1)).abs()
+        tr3 = (low_s - close_s.shift(1)).abs()
+        tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
+        return tr.rolling(period).mean()
+
+    # ── Helper: OBV ────────────────────────────────
+    def obv(close_s, vol_s):
+        direction = np.where(close_s > close_s.shift(1), 1,
+                    np.where(close_s < close_s.shift(1), -1, 0))
+        return (vol_s * direction).cumsum()
+
+    # ── Helper: Stochastic ─────────────────────────
+    def stochastic(high_s, low_s, close_s, k_period=14, d_period=3):
+        lowest_low = low_s.rolling(k_period).min()
+        highest_high = high_s.rolling(k_period).max()
+        k = 100 * (close_s - lowest_low) / (highest_high - lowest_low)
+        d = k.rolling(d_period).mean()
+        return k, d
+
+    # ── Compute all indicators ─────────────────────
+    ema_20  = ema(close, 20)
+    ema_50  = ema(close, 50)
+    ema_200 = ema(close, 200) if len(close) >= 200 else pd.Series(dtype=float)
+
+    rsi_14 = rsi(close, 14)
+
+    macd_line, macd_signal_line, macd_hist = macd(close)
+
+    bb_upper, bb_mid, bb_lower = bbands(close)
+
+    atr_14 = atr(high, low, close, 14)
+
+    obv_series = pd.Series(obv(close, vol), index=close.index)
+
+    stoch_k, stoch_d = stochastic(high, low, close)
 
     # ── Support / Resistance (simple rolling) ──
     resistance_20 = high.rolling(20).max()
@@ -220,11 +267,7 @@ def compute_indicators(df: pd.DataFrame, raw_close: pd.Series = None) -> dict:
     resistance_50 = high.rolling(50).max()
     support_50    = low.rolling(50).min()
 
-    # ── Stochastic ─────────────────────────────
-    stoch = ta.stoch(high, low, close, k=14, d=3)
-
-    latest = -1  # most recent row index
-
+    # ── Extract latest values ──────────────────────
     def safe(series, idx=-1):
         try:
             v = series.iloc[idx]
@@ -235,10 +278,9 @@ def compute_indicators(df: pd.DataFrame, raw_close: pd.Series = None) -> dict:
     current_price = safe(close)
     ema20_val     = safe(ema_20)
     ema50_val     = safe(ema_50)
-    ema200_val    = safe(ema_200)
+    ema200_val    = safe(ema_200) if len(ema_200) > 0 else None
 
-    # Trend label — uses the best available EMA stack
-    # EMA-200 needs 200 bars so may be absent; degrade gracefully
+    # Trend label
     if current_price and ema20_val and ema50_val and ema200_val:
         if current_price > ema20_val > ema50_val > ema200_val:
             trend = "Strong Uptrend (price above all EMAs)"
@@ -251,7 +293,6 @@ def compute_indicators(df: pd.DataFrame, raw_close: pd.Series = None) -> dict:
         else:
             trend = "Ranging / Mixed"
     elif current_price and ema20_val and ema50_val:
-        # No EMA-200 yet (need 200 bars; building history)
         if current_price < ema20_val and current_price < ema50_val and ema20_val < ema50_val:
             trend = "Strong Downtrend (price below EMA-20 & EMA-50)"
         elif current_price > ema20_val and current_price > ema50_val and ema20_val > ema50_val:
@@ -267,22 +308,19 @@ def compute_indicators(df: pd.DataFrame, raw_close: pd.Series = None) -> dict:
     else:
         trend = "Insufficient data"
 
-    macd_line   = safe(macd_df["MACD_12_26_9"])   if macd_df is not None else None
-    macd_signal = safe(macd_df["MACDs_12_26_9"])  if macd_df is not None else None
-    macd_hist   = safe(macd_df["MACDh_12_26_9"])  if macd_df is not None else None
+    macd_val    = safe(macd_line)
+    macd_sig    = safe(macd_signal_line)
+    macd_h      = safe(macd_hist)
 
-    bb_upper = safe(bb[bb_upper_col]) if bb is not None and bb_upper_col else None
-    bb_mid   = safe(bb[bb_mid_col])   if bb is not None and bb_mid_col   else None
-    bb_lower = safe(bb[bb_lower_col]) if bb is not None and bb_lower_col else None
-    bb_width = round((bb_upper - bb_lower) / bb_mid * 100, 2) if all([bb_upper, bb_lower, bb_mid]) else None
+    bb_u = safe(bb_upper)
+    bb_m = safe(bb_mid)
+    bb_l = safe(bb_lower)
+    bb_width = round((bb_u - bb_l) / bb_m * 100, 2) if all([bb_u, bb_l, bb_m]) else None
 
-    stoch_k = safe(stoch["STOCHk_14_3_3"]) if stoch is not None else None
-    stoch_d = safe(stoch["STOCHd_14_3_3"]) if stoch is not None else None
+    sk = safe(stoch_k)
+    sd = safe(stoch_d)
 
     # Price change calculations
-    # 1d: use today's open-to-close (immune to contract rollover gaps)
-    # Weekly/monthly: use RAW (unadjusted) closes so rollover adjustments
-    # don't distort the actual price move the user experienced.
     today_open   = safe(df["Open"])
     prev_close   = safe(raw, -2)
     week_ago     = safe(raw, -6)  if len(raw) >= 6  else None
@@ -293,9 +331,7 @@ def compute_indicators(df: pd.DataFrame, raw_close: pd.Series = None) -> dict:
             return round((current - previous) / previous * 100, 2)
         return None
 
-    # Detect contract rollovers — a gap between one day's close and the
-    # next day's open that exceeds 3% is almost certainly a roll, not a
-    # real price move.  Flag and count them so the agent can caveat.
+    # Detect contract rollovers
     rollover_dates = []
     if len(df) >= 2:
         prev_closes = close.shift(1)
@@ -305,7 +341,6 @@ def compute_indicators(df: pd.DataFrame, raw_close: pd.Series = None) -> dict:
             if abs(gap) > 3.0:
                 rollover_dates.append(str(dt.date()))
 
-    # Daily change: open-to-close avoids rollover distortion
     change_1d = pct_change(current_price, today_open)
 
     return {
@@ -341,22 +376,22 @@ def compute_indicators(df: pd.DataFrame, raw_close: pd.Series = None) -> dict:
             "rsi_signal":   "Overbought" if safe(rsi_14) and safe(rsi_14) > 70
                             else "Oversold" if safe(rsi_14) and safe(rsi_14) < 30
                             else "Neutral",
-            "macd":         macd_line,
-            "macd_signal":  macd_signal,
-            "macd_hist":    macd_hist,
-            "macd_cross":   "Bullish" if macd_line and macd_signal and macd_line > macd_signal
+            "macd":         macd_val,
+            "macd_signal":  macd_sig,
+            "macd_hist":    macd_h,
+            "macd_cross":   "Bullish" if macd_val and macd_sig and macd_val > macd_sig
                             else "Bearish",
-            "stoch_k":      stoch_k,
-            "stoch_d":      stoch_d,
+            "stoch_k":      sk,
+            "stoch_d":      sd,
         },
         "volatility": {
             "atr_14":       safe(atr_14),
-            "bb_upper":     bb_upper,
-            "bb_mid":       bb_mid,
-            "bb_lower":     bb_lower,
+            "bb_upper":     bb_u,
+            "bb_mid":       bb_m,
+            "bb_lower":     bb_l,
             "bb_width_pct": bb_width,
-            "bb_position":  "Above Upper Band" if current_price and bb_upper and current_price > bb_upper
-                            else "Below Lower Band" if current_price and bb_lower and current_price < bb_lower
+            "bb_position":  "Above Upper Band" if current_price and bb_u and current_price > bb_u
+                            else "Below Lower Band" if current_price and bb_l and current_price < bb_l
                             else "Within Bands",
         },
         "levels": {
@@ -368,9 +403,9 @@ def compute_indicators(df: pd.DataFrame, raw_close: pd.Series = None) -> dict:
         "volume": {
             # OBV absolute value is not meaningful on its own.
             # Only the direction (accumulation vs distribution) matters.
-            "obv_trend":        "Rising" if safe(obv) and safe(obv, -2) and safe(obv) > safe(obv, -2)
+            "obv_trend":        "Rising" if safe(obv_series) and safe(obv_series, -2) and safe(obv_series) > safe(obv_series, -2)
                                 else "Falling",
-            "obv_trend_label":  "Accumulation (OBV rising)" if safe(obv) and safe(obv, -2) and safe(obv) > safe(obv, -2)
+            "obv_trend_label":  "Accumulation (OBV rising)" if safe(obv_series) and safe(obv_series, -2) and safe(obv_series) > safe(obv_series, -2)
                                 else "Distribution (OBV falling)",
         },
     }
