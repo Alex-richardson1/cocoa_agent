@@ -381,10 +381,9 @@ def generate_weekly_report(
     opp_result: dict = None,
 ) -> str:
     """
-    Generate the structured weekly self-review report.
-    Called once per week (on WEEKLY_REPORT_DAY).
-
-    Returns markdown string.
+    Generate the structured weekly self-review report with
+    improvement tracking, signal trust, hypothetical performance,
+    and readiness assessment.
     """
     now = datetime.now(timezone.utc)
     week_start = now - timedelta(days=7)
@@ -404,15 +403,10 @@ def generate_weekly_report(
         if first_price and last_price else None
     )
 
-    # COT change
     cot_start = week_preds[0].get("cot_percentile") if week_preds else None
     cot_end = week_preds[-1].get("cot_percentile") if week_preds else None
-
-    # Stress change
     stress_start = week_preds[0].get("stress_score") if week_preds else None
     stress_end = week_preds[-1].get("stress_score") if week_preds else None
-
-    # Warehouse signal
     warehouse = snapshot.get("warehouse_stocks", {}).get("signal", "N/A")
 
     lines = []
@@ -420,39 +414,114 @@ def generate_weekly_report(
     lines.append(f"**Generated:** {now.strftime('%Y-%m-%d %H:%M')} UTC")
     lines.append("")
 
+    # ── Section 1: Readiness Assessment (traffic light at the top) ──
+    readiness = _compute_readiness(ledger)
+    light = {"GREEN": "🟢", "AMBER": "🟡", "RED": "🔴"}.get(readiness["level"], "⚪")
+    lines.append(f"## {light} AGENT READINESS: {readiness['level']}")
+    for note in readiness["notes"]:
+        lines.append(f"  - {note}")
+    if readiness.get("weeks_to_green"):
+        lines.append(f"  - Estimated weeks to GREEN: {readiness['weeks_to_green']}")
+    lines.append("")
+
+    # ── Section 2: Market this week ───────────────
     lines.append("## 📈 MARKET THIS WEEK")
     if week_move is not None:
         direction = "📈" if week_move > 0 else "📉" if week_move < 0 else "➡️"
         lines.append(f"Price: {first_price:.0f} → {last_price:.0f} ({week_move:+.1f}%) {direction}")
     if cot_start is not None and cot_end is not None:
-        cot_direction = "↑ shorts covering" if cot_end > cot_start else "↓ more shorting" if cot_end < cot_start else "→ stable"
-        lines.append(f"COT: {cot_start:.0f}th → {cot_end:.0f}th percentile ({cot_direction})")
+        cot_dir = "↑ shorts covering" if cot_end > cot_start else "↓ more shorting" if cot_end < cot_start else "→ stable"
+        lines.append(f"COT: {cot_start:.0f}th → {cot_end:.0f}th percentile ({cot_dir})")
     if stress_start is not None and stress_end is not None:
         lines.append(f"Crop stress: {stress_start}/100 → {stress_end}/100")
     lines.append(f"Warehouse: {warehouse}")
     lines.append("")
 
-    # ── Accuracy this week ────────────────────────
-    lines.append("## 📊 MY ACCURACY THIS WEEK")
-    accuracy = get_shadow_accuracy(days=7)
+    # ── Section 3: Rolling Accuracy Trend ─────────
+    lines.append("## 📈 ACCURACY TREND")
+    acc_1w  = get_shadow_accuracy(days=7)
+    acc_4w  = get_shadow_accuracy(days=28)
+    acc_12w = get_shadow_accuracy(days=84)
 
+    # Format the comparison table
+    lines.append("```")
+    lines.append(f"{'':>16} {'This week':>12} {'4-week avg':>12} {'12-week avg':>12}")
     for horizon in ["7d", "14d", "21d"]:
-        if horizon in accuracy:
-            a = accuracy[horizon]
-            lines.append(f"{horizon}: {a['correct']}/{a['total']} correct ({a['accuracy']}%)")
+        w1  = acc_1w.get(horizon, {}).get("accuracy", "—")
+        w4  = acc_4w.get(horizon, {}).get("accuracy", "—")
+        w12 = acc_12w.get(horizon, {}).get("accuracy", "—")
+        w1_str  = f"{w1}%" if isinstance(w1, (int, float)) else w1
+        w4_str  = f"{w4}%" if isinstance(w4, (int, float)) else w4
+        w12_str = f"{w12}%" if isinstance(w12, (int, float)) else w12
+        n1 = acc_1w.get(horizon, {}).get("total", 0)
+        n4 = acc_4w.get(horizon, {}).get("total", 0)
+        n12 = acc_12w.get(horizon, {}).get("total", 0)
+        lines.append(f"Direction {horizon}:  {w1_str:>10} (n={n1}) {w4_str:>6} (n={n4}) {w12_str:>6} (n={n12})")
+    lines.append("```")
 
-    # Component insights
-    comps = accuracy.get("components", {})
+    # Detect improvement or decline
+    for horizon in ["14d", "21d"]:
+        a4 = acc_4w.get(horizon, {}).get("accuracy")
+        a12 = acc_12w.get(horizon, {}).get("accuracy")
+        if a4 is not None and a12 is not None:
+            diff = a4 - a12
+            if diff > 8:
+                lines.append(f"Trend: IMPROVING ↑ — {horizon} accuracy up {diff:.0f}pts over 12 weeks")
+            elif diff < -8:
+                lines.append(f"Trend: DECLINING ↓ — {horizon} accuracy down {abs(diff):.0f}pts over 12 weeks")
+            else:
+                lines.append(f"Trend: STABLE → — {horizon} accuracy within ±8pts")
+            break
+    lines.append("")
+
+    # ── Section 4: Signal Trust Scores ────────────
+    lines.append("## 🔬 SIGNAL TRUST (14d accuracy by regime)")
+    comps = acc_12w.get("components", {})
     if comps:
-        lines.append("")
-        lines.append("Signal reliability (14d accuracy by regime):")
-        for regime, stats in sorted(comps.items(), key=lambda x: x[1]["accuracy"], reverse=True):
+        sorted_comps = sorted(comps.items(), key=lambda x: x[1]["accuracy"], reverse=True)
+        for regime, stats in sorted_comps:
             emoji = "✅" if stats["accuracy"] >= 60 else "⚠️" if stats["accuracy"] >= 45 else "❌"
             label = regime.replace("_", " ").title()
             lines.append(f"  {emoji} {label}: {stats['accuracy']}% ({stats['correct']}/{stats['total']})")
+
+        # Key insight
+        if sorted_comps:
+            best = sorted_comps[0]
+            worst = sorted_comps[-1]
+            lines.append("")
+            lines.append(
+                f"Key: {best[0].replace('_', ' ').title()} is most reliable "
+                f"({best[1]['accuracy']}%). "
+                f"{worst[0].replace('_', ' ').title()} is least reliable "
+                f"({worst[1]['accuracy']}%)."
+            )
+    else:
+        lines.append("  Not enough data yet — need 3+ scored predictions per regime.")
     lines.append("")
 
-    # ── Big misses ────────────────────────────────
+    # ── Section 5: Hypothetical Performance ───────
+    lines.append("## 📊 HYPOTHETICAL PERFORMANCE")
+    hypo = _compute_hypothetical_performance(ledger)
+    if hypo["total_alerts"] > 0:
+        lines.append(f"Total alerts sent: {hypo['total_alerts']} "
+                     f"({hypo['watchlist_count']} WATCHLIST, {hypo['opportunity_count']} OPPORTUNITY)")
+        lines.append(f"Direction correct: {hypo['correct']}/{hypo['total_alerts']} "
+                     f"({hypo['win_rate']:.0f}%)")
+        if hypo["avg_move"] is not None:
+            lines.append(f"Avg move in alert direction at 14d: {hypo['avg_move']:+.1f}%")
+        if hypo["best_trade"]:
+            lines.append(f"Best trade: {hypo['best_trade']}")
+        if hypo["worst_trade"]:
+            lines.append(f"Worst trade: {hypo['worst_trade']}")
+        if hypo["hypothetical_return"] is not None:
+            lines.append(f"Hypothetical return (equal weight per alert): {hypo['hypothetical_return']:+.1f}%")
+        lines.append(f"Alerts in last 7 days: {hypo['alerts_this_week']}")
+    else:
+        lines.append("No WATCHLIST or OPPORTUNITY alerts sent yet.")
+        lines.append("Hypothetical tracking will activate after the first alert.")
+    lines.append("")
+
+    # ── Section 6: Big Misses ─────────────────────
     postmortems = get_recent_postmortems(days=7)
     if postmortems:
         lines.append("## ⚠️ BIG MISSES THIS WEEK")
@@ -463,10 +532,9 @@ def generate_weekly_report(
         lines.append("## ✅ NO BIG MISSES THIS WEEK")
         lines.append("")
 
-    # ── What I learned ────────────────────────────
+    # ── Section 7: What I Learned ─────────────────
     lines.append("## 🔍 WHAT I LEARNED")
 
-    # Compute directional bias this week
     moves = []
     for r in week_preds:
         ev = r.get("eval_7d", {})
@@ -479,14 +547,12 @@ def generate_weekly_report(
         elif avg_move < -2:
             lines.append(f"- Market had a bearish bias this week (avg {avg_move:+.1f}%)")
 
-    # Check if any assessment changed during the week
     assessments = [r.get("assessment") for r in week_preds if r.get("assessment")]
     if len(set(assessments)) > 1:
         lines.append(f"- My view shifted this week: {' → '.join(assessments)}")
     elif assessments:
         lines.append(f"- Consistent view all week: {assessments[0]}")
 
-    # Fair range stability
     fair_ranges = [(r.get("fair_low"), r.get("fair_high")) for r in week_preds
                    if r.get("fair_low") is not None]
     if fair_ranges:
@@ -497,13 +563,15 @@ def generate_weekly_report(
     if postmortems:
         for pm in postmortems:
             if pm.get("type") == "directional_miss":
-                lines.append(f"- LESSON: {pm['driver_cited']} — this signal led me wrong")
+                lines.append(f"- LESSON: {pm.get('driver_cited', 'Unknown')} — this signal led me wrong")
             elif pm.get("type") == "anticipated_but_silent":
-                lines.append(f"- LESSON: Had the right view but score too low to alert — "
-                             f"review scoring thresholds")
+                lines.append(f"- LESSON: Had the right view but score too low to alert — review thresholds")
+
+    if not moves and not assessments and not fair_ranges and not postmortems:
+        lines.append("- Not enough scored predictions yet to extract lessons.")
     lines.append("")
 
-    # ── Current watchlist ─────────────────────────
+    # ── Section 8: Current Watchlist ──────────────
     lines.append("## 📡 WATCHLIST STATUS")
     if opp_result:
         lines.append(f"Score: {opp_result['total_score']}/100 ({opp_result['alert_level']})")
@@ -511,6 +579,8 @@ def generate_weekly_report(
         for comp_name, comp_data in opp_result.get("components", {}).items():
             lines.append(f"  {comp_name}: {comp_data.get('score', '?')}/100 — "
                          f"{comp_data.get('rationale', '')[:80]}")
+    else:
+        lines.append("No current opportunity assessment available.")
     lines.append("")
 
     lines.append("---")
@@ -518,15 +588,202 @@ def generate_weekly_report(
 
     report = "\n".join(lines)
 
-    # Save report
+    # Save
     with open(WEEKLY_REPORT_FILE, "w") as f:
         f.write(report)
 
-    # Save to weekly history
-    _save_weekly_history(now, accuracy, postmortems, opp_result, week_move)
+    _save_weekly_history(now, acc_4w, postmortems, opp_result, week_move, readiness, hypo)
 
     log.info(f"  📋 Weekly report generated: {WEEKLY_REPORT_FILE}")
     return report
+
+
+# ─────────────────────────────────────────────
+#  READINESS ASSESSMENT
+# ─────────────────────────────────────────────
+
+GREEN_THRESHOLD_14D  = 62   # 14d accuracy needed for GREEN
+AMBER_THRESHOLD_14D  = 48   # Below this = RED
+MIN_PREDICTIONS      = 15   # Need at least this many scored predictions
+
+def _compute_readiness(ledger: list) -> dict:
+    """
+    Traffic light readiness assessment.
+    GREEN = trust the alerts, act on OPPORTUNITY signals.
+    AMBER = improving but not proven enough — observe but don't commit fully.
+    RED = accuracy declining or too low — do not act, investigate.
+    """
+    acc_4w  = get_shadow_accuracy(days=28)
+    acc_12w = get_shadow_accuracy(days=84)
+
+    notes = []
+    level = "AMBER"  # default
+
+    # Check if we have enough data
+    total_scored = sum(
+        acc_12w.get(h, {}).get("total", 0) for h in ["7d", "14d", "21d"]
+    )
+    if total_scored < MIN_PREDICTIONS:
+        notes.append(f"Only {total_scored} scored predictions — need {MIN_PREDICTIONS}+ for reliable assessment")
+        return {"level": "AMBER", "notes": notes, "weeks_to_green": None}
+
+    # Primary metric: 14d accuracy (most meaningful horizon)
+    acc_14d_4w = acc_4w.get("14d", {}).get("accuracy")
+    acc_14d_12w = acc_12w.get("14d", {}).get("accuracy")
+
+    # Fall back to 7d if 14d not available
+    if acc_14d_4w is None:
+        acc_14d_4w = acc_4w.get("7d", {}).get("accuracy")
+        acc_14d_12w = acc_12w.get("7d", {}).get("accuracy")
+
+    if acc_14d_4w is None:
+        notes.append("No accuracy data available yet")
+        return {"level": "AMBER", "notes": notes, "weeks_to_green": None}
+
+    # Determine level
+    if acc_14d_4w >= GREEN_THRESHOLD_14D:
+        level = "GREEN"
+        notes.append(f"14d accuracy at {acc_14d_4w:.0f}% (target: {GREEN_THRESHOLD_14D}%+)")
+        notes.append("Agent has demonstrated sufficient accuracy — act on OPPORTUNITY alerts")
+    elif acc_14d_4w < AMBER_THRESHOLD_14D:
+        level = "RED"
+        notes.append(f"14d accuracy at {acc_14d_4w:.0f}% (below {AMBER_THRESHOLD_14D}% threshold)")
+        notes.append("Accuracy too low — do NOT act on alerts. Investigate what's going wrong.")
+    else:
+        level = "AMBER"
+        notes.append(f"14d accuracy at {acc_14d_4w:.0f}% (target: {GREEN_THRESHOLD_14D}% for GREEN)")
+        gap = GREEN_THRESHOLD_14D - acc_14d_4w
+        notes.append(f"Need {gap:.0f}pts improvement to reach GREEN")
+
+    # Check trend
+    if acc_14d_12w is not None and acc_14d_4w is not None:
+        trend = acc_14d_4w - acc_14d_12w
+        if trend > 5:
+            notes.append(f"Improving: +{trend:.0f}pts over 12 weeks")
+        elif trend < -5:
+            notes.append(f"Declining: {trend:.0f}pts over 12 weeks")
+            if level == "GREEN":
+                level = "AMBER"
+                notes.append("Downgraded to AMBER due to declining trend")
+
+    # Check component reliability
+    comps = acc_12w.get("components", {})
+    strong = [k for k, v in comps.items() if v["accuracy"] >= 65 and v["total"] >= 5]
+    weak = [k for k, v in comps.items() if v["accuracy"] < 40 and v["total"] >= 5]
+    if strong:
+        notes.append(f"Strong signals: {', '.join(s.replace('_', ' ').title() for s in strong)}")
+    if weak:
+        notes.append(f"Weak signals: {', '.join(w.replace('_', ' ').title() for w in weak)}")
+
+    # Estimate weeks to green
+    weeks_to_green = None
+    if level != "GREEN" and acc_14d_12w is not None and acc_14d_4w is not None:
+        improvement_rate = (acc_14d_4w - acc_14d_12w) / 12  # pts per week
+        if improvement_rate > 0.5:
+            gap = GREEN_THRESHOLD_14D - acc_14d_4w
+            weeks_to_green = max(1, round(gap / improvement_rate))
+
+    return {"level": level, "notes": notes, "weeks_to_green": weeks_to_green}
+
+
+# ─────────────────────────────────────────────
+#  HYPOTHETICAL PERFORMANCE
+# ─────────────────────────────────────────────
+
+def _compute_hypothetical_performance(ledger: list) -> dict:
+    """
+    Track what would have happened if you'd acted on every
+    WATCHLIST and OPPORTUNITY alert.
+    """
+    now = datetime.now(timezone.utc)
+    week_ago = (now - timedelta(days=7)).strftime("%Y-%m-%d")
+
+    alerts = [
+        r for r in ledger
+        if r.get("opp_alert_level") in ("WATCHLIST", "OPPORTUNITY")
+    ]
+
+    if not alerts:
+        return {
+            "total_alerts": 0, "watchlist_count": 0, "opportunity_count": 0,
+            "correct": 0, "win_rate": 0, "avg_move": None,
+            "best_trade": None, "worst_trade": None,
+            "hypothetical_return": None, "alerts_this_week": 0,
+        }
+
+    watchlist_count = sum(1 for a in alerts if a.get("opp_alert_level") == "WATCHLIST")
+    opportunity_count = sum(1 for a in alerts if a.get("opp_alert_level") == "OPPORTUNITY")
+
+    # Score each alert — use 14d evaluation
+    scored_alerts = []
+    for a in alerts:
+        ev = a.get("eval_14d", {})
+        if ev.get("status") != "scored":
+            ev = a.get("eval_7d", {})
+        if ev.get("status") != "scored":
+            continue
+
+        direction = a.get("direction", "NEUTRAL")
+        move_pct = ev.get("move_pct", 0)
+
+        # Was the trade profitable in the predicted direction?
+        if direction in ("LONG", "BULLISH") and "undervalued" in (a.get("assessment") or "").lower():
+            trade_pnl = move_pct  # long: profit if price went up
+        elif direction in ("SHORT",) and "overvalued" in (a.get("assessment") or "").lower():
+            trade_pnl = -move_pct  # short: profit if price went down
+        else:
+            trade_pnl = 0
+
+        scored_alerts.append({
+            "date": a.get("date"),
+            "direction": direction,
+            "move_pct": move_pct,
+            "trade_pnl": round(trade_pnl, 2),
+            "correct": ev.get("direction_correct", False),
+            "alert_level": a.get("opp_alert_level"),
+        })
+
+    if not scored_alerts:
+        alerts_this_week = sum(1 for a in alerts if a.get("date", "") >= week_ago)
+        return {
+            "total_alerts": len(alerts), "watchlist_count": watchlist_count,
+            "opportunity_count": opportunity_count,
+            "correct": 0, "win_rate": 0, "avg_move": None,
+            "best_trade": None, "worst_trade": None,
+            "hypothetical_return": None, "alerts_this_week": alerts_this_week,
+        }
+
+    correct = sum(1 for s in scored_alerts if s["correct"])
+    win_rate = correct / len(scored_alerts) * 100
+    avg_pnl = sum(s["trade_pnl"] for s in scored_alerts) / len(scored_alerts)
+
+    # Cumulative return (compounded)
+    cumulative = 1.0
+    for s in scored_alerts:
+        cumulative *= (1 + s["trade_pnl"] / 100)
+    hypothetical_return = round((cumulative - 1) * 100, 1)
+
+    # Best and worst
+    best = max(scored_alerts, key=lambda s: s["trade_pnl"])
+    worst = min(scored_alerts, key=lambda s: s["trade_pnl"])
+
+    best_str = f"{best['trade_pnl']:+.1f}% ({best['date']} — {best['direction'].lower()})"
+    worst_str = f"{worst['trade_pnl']:+.1f}% ({worst['date']} — {worst['direction'].lower()})"
+
+    alerts_this_week = sum(1 for a in alerts if a.get("date", "") >= week_ago)
+
+    return {
+        "total_alerts": len(alerts),
+        "watchlist_count": watchlist_count,
+        "opportunity_count": opportunity_count,
+        "correct": correct,
+        "win_rate": win_rate,
+        "avg_move": round(avg_pnl, 1),
+        "best_trade": best_str,
+        "worst_trade": worst_str,
+        "hypothetical_return": hypothetical_return,
+        "alerts_this_week": alerts_this_week,
+    }
 
 
 def should_generate_weekly_report() -> bool:
@@ -627,21 +884,26 @@ def _save_postmortems(new_pms: list):
         json.dump(existing, f, indent=2, default=str)
 
 
-def _save_weekly_history(now, accuracy, postmortems, opp_result, week_move):
+def _save_weekly_history(now, accuracy, postmortems, opp_result, week_move,
+                        readiness=None, hypo=None):
     try:
         with open(WEEKLY_HISTORY_FILE, "r") as f:
             history = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         history = []
 
-    history.append({
+    entry = {
         "date": now.strftime("%Y-%m-%d"),
         "week": now.isocalendar()[1],
         "accuracy": accuracy,
         "big_misses": len(postmortems),
         "opp_score": opp_result.get("total_score") if opp_result else None,
         "week_move_pct": week_move,
-    })
+        "readiness": readiness.get("level") if readiness else None,
+        "hypothetical_return": hypo.get("hypothetical_return") if hypo else None,
+    }
+
+    history.append(entry)
     history = history[-52:]  # Keep 1 year
 
     with open(WEEKLY_HISTORY_FILE, "w") as f:
