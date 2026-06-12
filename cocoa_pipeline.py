@@ -345,21 +345,55 @@ def run_pipeline():
     #  STEP 8: Combined Stress Signal
     # ══════════════════════════════════════════════
     try:
+        log.info("Step 8: Computing combined stress signal...")
         from cocoa_stress_signal import compute_combined_stress_signal
 
-        stress = compute_combined_stress_signal()
-        if stress:
+        weather = snapshot.get("weather")
+        crop = snapshot.get("crop_health")
+
+        valid_weather_locations = [
+            name
+            for name, data in (weather or {}).items()
+            if isinstance(data, dict) and "error" not in data
+        ]
+
+        if not weather or not valid_weather_locations:
+            results["steps"]["stress_signal"] = {
+                "status": "SKIP",
+                "error": "No valid weather data",
+            }
+            log.info("  ⏭️ Stress signal: no valid weather data")
+
+        elif not crop:
+            results["steps"]["stress_signal"] = {
+                "status": "SKIP",
+                "error": "No crop health data",
+            }
+            log.info("  ⏭️ Stress signal: no crop health data")
+
+        else:
+            stress = compute_combined_stress_signal(
+                weather_data={"locations": weather},
+                crop_data=crop,
+            )
+
             snapshot["combined_stress"] = stress
             results["steps"]["stress_signal"] = {
                 "status": "OK",
-                "score": stress.get("stress_score"),
+                "score": stress.get("combined_stress_score"),
                 "signal": stress.get("signal"),
+                "bias": stress.get("bias"),
             }
-            log.info(f"  ✅ Stress signal: {stress.get('stress_score')}/100")
-        else:
-            results["steps"]["stress_signal"] = {"status": "SKIP", "error": "No data"}
+            log.info(
+                f"  ✅ Stress signal: {stress.get('combined_stress_score')}/100 "
+                f"({stress.get('signal')})"
+            )
+
     except ImportError:
-        results["steps"]["stress_signal"] = {"status": "SKIP", "error": "Module not available"}
+        results["steps"]["stress_signal"] = {
+            "status": "SKIP",
+            "error": "Module not available",
+        }
     except Exception as e:
         results["steps"]["stress_signal"] = {"status": "FAIL", "error": str(e)}
         log.warning(f"  ❌ Stress signal failed: {e}")
