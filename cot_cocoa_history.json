@@ -866,5 +866,12 @@
     "managed_money_long": 26497,
     "managed_money_short": 36409,
     "total_open_interest": 194369
+  },
+  {
+    "report_date": "2026-06-02",
+    "managed_money_net": -16604,
+    "managed_money_long": 22421,
+    "managed_money_short": 39025,
+    "total_open_interest": 205076
   }
 ]

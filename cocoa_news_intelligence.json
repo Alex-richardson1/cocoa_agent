@@ -1,0 +1,75 @@
+{
+  "recent_summary": "Cocoa prices have been volatile over the past week, falling to over 1-month lows before rallying into the weekend. Prices retreated mid-week on robust Ivory Coast cocoa exports and forecasts for beneficial West African weather, with abundant rains reportedly boosting the mid-crop outlook. However, prices found support from intermittent concerns about crop-damaging weather and tight inventories, with Wells Fargo noting inventory constraints continue to underpin the market.",
+  "background_context": "West Africa produces roughly two-thirds of global cocoa and experienced up to 40% harvest losses across two recent seasons, creating a structural supply deficit. Major chocolate manufacturers like Barry Callebaut are adjusting strategies amid cocoa volatility, with the company forecasting profit declines following sharp cocoa price drops. Industry players are increasingly focused on premiumisation strategies (Mars, Mondel\u0113z) to offset higher input costs, while demand concerns persist as consumers face elevated chocolate prices. Ghana's COCOBOD has maintained producer prices at GH\u00a22,587 per bag for the 2025/2026 light crop season.",
+  "key_themes": [
+    "West African weather patterns driving short-term price volatility",
+    "Demand destruction concerns amid elevated chocolate prices",
+    "Structural supply constraints from recent harvest losses maintaining price floor"
+  ],
+  "directional_signal": "Mixed",
+  "signal_confidence": "Medium",
+  "signal_rationale": "Improved weather forecasts and rising Ivory Coast exports are weighing on prices, but tight global inventories and structural supply deficits from prior season losses provide underlying support, creating a tug-of-war between near-term bearish and longer-term bullish factors.",
+  "key_articles": [
+    {
+      "title": "Cocoa Futures at Over 1-Month Low",
+      "source": "TradingView",
+      "age": "1 day ago",
+      "relevance": "Documents recent price weakness reaching multi-week lows",
+      "url": "https://news.google.com/rss/articles/CBMijAFBVV95cUxPbHR2bUtnSEFlbHFkdDkwc2tRdGZ5VWEwWjFOdlZLZ21hNE9FZ0o0TXdaSzlXS043M1F3aUFWY19fOV9DSWdqejY2bjB3ZTJkWVRkOHc1NjVfVkpSRk1rRkw4TXk0cVVIalpLeGQ4TUFYbXhtWWhQRjdTbWxUMEVOQ2FOMldDQmNGUEZUMg?oc=5"
+    },
+    {
+      "title": "Wells Fargo sees cocoa prices supported by tight inventories, favors Mondelez",
+      "source": "Investing.com",
+      "age": "1 day ago",
+      "relevance": "Analyst view on inventory-driven price support and implications for chocolate makers",
+      "url": "https://news.google.com/rss/articles/CBMi1AFBVV95cUxObXRRNy01YTZ1UEdTTTZGbGpBSzZLN0F0RzdmTldKTmRXOHluUHBQWVEtajlWaWlWN0tSVzU2b0RHbllhdVVqVFVHSDQwamRaVE1pV0NKU1JZTjlDeWM3QV9hSUp1N1oyY2N2MEpFMGd5VVcxUElTMGUyWXcwQWhFcDRNbnBsLVhUNWR1RWNzNnd5RVZxMkVCTU80WkdDcDRTeThSWDNiNU9xLW5TbG1hVGtzZ1o0TXFtMlVhSm9MeTlkRTFBeWhvVkNYN0FiZXJxLXkzMw?oc=5"
+    },
+    {
+      "title": "Abundant rains boost cocoa mid-crop in Ivory Coast",
+      "source": "CNBC Africa",
+      "age": "3 days ago",
+      "relevance": "Key supply update on improving mid-crop prospects in top producer",
+      "url": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxNQXZDWXlqSUpNMHN1RjZZWDkzLXp5NS1lS0N2c08xSzU3Zjl4Uzl4LUd4YjNoRWhDVzh2MzBGRmpGS01pbGYtQTZwS1dOUjg1Rm16MDRuWDd2QTdicGFBb3BQSUtFVllVanRmcm9QMFBZNVlYY29uSjFaQW1NNTBZYUJsNUtycnVMUVBB?oc=5"
+    },
+    {
+      "title": "Cocoa Prices Retreat on Robust Ivory Coast Cocoa Exports",
+      "source": "Barchart",
+      "age": "1 day ago",
+      "relevance": "Details export flow improvements pressuring prices",
+      "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxNLVJDQmtEeEJMT2hUX3V0NzJQTnU2OWt2Y3lYNC1nTG9sZzVIUF9lR2ZoWmpFQWlPSHFIcDJ3ZWcyWTBJMUM4YzJ0d01KdWR6WE9XSXJWU25DNlY5UEZ5OV9yU0xqUzlPTzMycWtrSzNXdlhJdkd3UkNCZ1BlZG1oTnRja0xtTk5tTUZhX1BqcVBYbnB6UEs4b0tGeGpTVDBzRkE?oc=5"
+    },
+    {
+      "title": "El Ni\u00f1o weather concerns and global trade disruption impact Ivory Coast cocoa",
+      "source": "Confectionery Production",
+      "age": "3 days ago",
+      "relevance": "Covers dual risks of weather and trade disruptions affecting supply",
+      "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxONjAxOXdBWUdaeWpaR1g2OF9wYUl5OTlJVS1kVlMzZ2dLb0ZTUUlJNGNQUnpHMXNxSWp3TGRkTUxLemJzUWlkQ2E3cTVJTzRxSUVUQXhyNVBGckFOaU5mUzk4NGtZS0x0S08zc253UERtSzRkb1hVc1FzU1BzSE54LUl2OUhteGM1V3FhTnMxVkJjQlBmRUlGRDc1cEM4eVBWZVF3dTM3SVlCUi1aTko3QjhYa2JCRUFJSWFibDczckQ0NXk2ZEdNMA?oc=5"
+    },
+    {
+      "title": "Barry Callebaut Sees Profit Falling After Sharp Cocoa-Price Drop",
+      "source": "Bloomberg",
+      "age": "1 month ago",
+      "relevance": "Major processor guidance reflects market volatility impact on industry",
+      "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxOUUJFNUlnWU5XRXppMEI4LVV0OElSMmJfWWVTM1JmdXdxUmk0dHZNZzhnVlNBYXFPdTU0SVlacHIybm9xY1h6YXBFTHhXYVV3SEdmbUdfZlRVRnNyOGpTZVEzSTMxY2cyLTNPaVdyZ1hZU0JZNlJXaGVtRTFPb2kwRWxsWXJ3MjZ6V0IzWGZfcDRaWjFhQVdaMEp0Uk9jN3h6aFkxOElWa2xDcXBnS0oyMElsMHE1dw?oc=5"
+    }
+  ],
+  "watch_items": [
+    "Ivory Coast and Ghana mid-crop harvest progress and export data",
+    "West African rainfall patterns over next 2-4 weeks",
+    "European and North American grinding data for demand signals"
+  ],
+  "data_quality": "Coverage is adequate with good representation from market data sources (Barchart, TradingView) and industry outlets, though direct Reuters/Bloomberg cocoa-specific articles are limited in the recent timeframe.",
+  "demand_forecast": {
+    "full_year_outlook": "Analysts expect cocoa prices to decline in 2026 from 2024-2025 highs as the market transitions from deficit to projected surplus conditions, with London cocoa forecasted to average around \u00a33,400/tonne (~$4,586 USD).",
+    "price_targets": "ING forecasts London cocoa averaging approximately \u00a33,400/tonne (~$4,586 USD) for 2026",
+    "key_risks_upside": "Supply disruptions from adverse weather and disease in West Africa persisting beyond expectations",
+    "key_risks_downside": "Weaker processing demand with global grindings estimated to fall to 4.60 million tonnes in 2024/25",
+    "source_summary": "Capital.com analysis citing ING commodities research and ICCA November 2025 bulletin; TradingEconomics provided no substantive content"
+  },
+  "generated_at": "2026-06-12T18:55:19.658399+00:00",
+  "article_counts": {
+    "recent": 24,
+    "background": 20,
+    "total": 77
+  }
+}
