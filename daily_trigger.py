@@ -248,11 +248,13 @@ def run_daily():
 
 
 if __name__ == "__main__":
-    if not AGENT_ID or not ENVIRONMENT_ID:
-        print("ERROR: Set AGENT_ID and ENVIRONMENT_ID environment variables.")
-        sys.exit(1)
-
     if "--setup" in sys.argv:
+        if not os.environ.get("ANTHROPIC_API_KEY"):
+            print("ERROR: Set ANTHROPIC_API_KEY environment variable.")
+            sys.exit(1)
         setup()
     else:
+        if not AGENT_ID or not ENVIRONMENT_ID:
+            print("ERROR: Set AGENT_ID and ENVIRONMENT_ID environment variables.")
+            sys.exit(1)
         run_daily()
