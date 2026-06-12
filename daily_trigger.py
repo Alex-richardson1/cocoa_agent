@@ -148,8 +148,12 @@ PIPELINE_STATUS=0
 python3 cocoa_pipeline.py || PIPELINE_STATUS=$?
 
 # Run the analyst/alerting layer only if price exists.
+AGENT_STATUS=0
+
 if [ "$PIPELINE_STATUS" -eq 0 ]; then
-  python3 cocoa_agent.py || true
+  python cocoa_agent.py || AGENT_STATUS=$?
+else
+  echo "Skipping cocoa_agent.py because cocoa_pipeline.py exited with status $PIPELINE_STATUS"
 fi
 
 for f in \
@@ -183,8 +187,11 @@ fi
 echo "Saved memory state files:"
 ls -lah "$STATE_DIR" || true
 
-exit "$PIPELINE_STATUS"
-exit "$PIPELINE_STATUS"
+if [ "$PIPELINE_STATUS" -ne 0 ]; then
+  exit "$PIPELINE_STATUS"
+fi
+
+exit "$AGENT_STATUS"
 
 """
 
