@@ -39,7 +39,7 @@ WEEKLY_REPORT_FILE  = os.getenv("WEEKLY_REPORT_FILE",  "cocoa_weekly_report.md")
 WEEKLY_HISTORY_FILE = os.getenv("WEEKLY_HISTORY_FILE",  "cocoa_weekly_history.json")
 
 BIG_MISS_THRESHOLD_PCT = 5.0   # Price move that triggers post-mortem
-WEEKLY_REPORT_DAY      = 6     # Sunday (0=Monday, 6=Sunday)
+WEEKLY_REPORT_DAY = 4     # Friday (0=Monday, 4=Friday, 6=Sunday)
 
 
 # ─────────────────────────────────────────────
