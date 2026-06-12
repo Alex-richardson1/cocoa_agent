@@ -40,48 +40,30 @@ MEMORY_STORE_ID_FILE = ".memory_store_id"
 
 DAILY_INSTRUCTION = """
 Run the cocoa market surveillance pipeline. Follow these steps EXACTLY.
-Do NOT recreate any Python scripts — they come from git.
-Do NOT send any Telegram messages yourself — the Python scripts handle alerts.
-Do NOT improvise or add extra steps. Just execute the commands below.
+Do NOT recreate any Python scripts. Do NOT send Telegram messages. Do NOT improvise.
 
-1. CLONE REPO (workspace must be empty for this):
-   cd /workspace && git clone https://github.com/Alex-richardson1/cocoa_agent.git . 2>/dev/null || (git init && git remote add origin https://github.com/Alex-richardson1/cocoa_agent.git 2>/dev/null; git fetch origin && git checkout origin/main -- .)
+1. CLONE REPO:
+   cd /workspace && git clone https://github.com/Alex-richardson1/cocoa_agent.git . 2>/dev/null || git pull origin main 2>/dev/null
 
-2. MOVE CREDENTIALS into workspace:
-   cp /tmp/.env /workspace/.env 2>/dev/null
-   cp /tmp/gee-service-account.json /workspace/gee-service-account.json 2>/dev/null
+2. MOVE CREDENTIALS:
+   cp /tmp/.env /workspace/.env 2>/dev/null; cp /tmp/gee-service-account.json /workspace/gee-service-account.json 2>/dev/null
 
-3. INSTALL DEPENDENCIES (do not retry failures):
-  pip install -q pandas numpy yfinance requests feedparser python-dotenv httpx anthropic earthengine-api 2>/dev/null || true
-  python3 -c "
-  import importlib, pathlib, site
-  # Create sgmllib stub if missing (removed in Python 3.11, needed by feedparser)
-  try:
-      import sgmllib
-  except ImportError:
-      sp = site.getsitepackages()[0]
-      pathlib.Path(sp + '/sgmllib.py').write_text('from html.parser import HTMLParser as SGMLParser\nclass TestSGMLParser: pass\n')
-      print('sgmllib stub created')
-  " 2>/dev/null || true
+3. INSTALL DEPENDENCIES:
+   pip install -q pandas numpy yfinance requests feedparser python-dotenv httpx earthengine-api 2>/dev/null || true
+   python3 -c "import importlib, pathlib, site; exec(\"try:\\n import sgmllib\\nexcept ImportError:\\n sp=site.getsitepackages()[0]\\n pathlib.Path(sp+'/sgmllib.py').write_text('from html.parser import HTMLParser as SGMLParser\\\\nclass TestSGMLParser: pass\\\\n')\\n print('sgmllib stub created')\")" 2>/dev/null || true
 
-4. RESTORE STATE from memory:
-   mkdir -p /mnt/memory/cocoa-surveillance-memory/state
-   cp /mnt/memory/cocoa-surveillance-memory/state/*.json /workspace/ 2>/dev/null || echo "No prior state"
+4. RESTORE STATE:
+   mkdir -p /mnt/memory/cocoa-surveillance-memory/state; cp /mnt/memory/cocoa-surveillance-memory/state/*.json /workspace/ 2>/dev/null; cp /mnt/memory/cocoa-surveillance-memory/state/*.md /workspace/ 2>/dev/null; echo "State restored"
 
-5. RUN DATA GATHERER:
-   cd /workspace && python3 cocoa_data_gatherer.py
+5. RUN PIPELINE:
+   cd /workspace && python3 cocoa_pipeline.py
 
-6. RUN CROP MONITOR (skip if GEE fails):
-   python3 cocoa_crop_monitor.py --incremental 2>/dev/null || echo "Crop monitor skipped"
+6. READ THE PIPELINE OUTPUT and the health report. Print the health summary.
 
-7. RUN AGENT (no --force-alert):
-   python3 cocoa_agent.py
+7. SAVE STATE:
+   cp /workspace/cocoa_shadow_ledger.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_prediction_ledger.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_opportunity_log.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cot_cocoa_history.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_crop_health.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_feedback_summary.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/climatology_cache.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_postmortems.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_weekly_history.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_daily_snapshot.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_pipeline_health.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; echo "State saved"
 
-8. SAVE STATE back to memory:
-cp /workspace/cocoa_shadow_ledger.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_prediction_ledger.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_opportunity_log.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cot_cocoa_history.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_crop_health.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_feedback_summary.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/climatology_cache.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_postmortems.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_weekly_history.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_daily_report.md /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_weekly_report.md /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; echo "State saved"
-
-9. PRINT SUMMARY (console only — no Telegram):
-   Print the opportunity score, alert level, and one-line summary. Nothing else.
+8. PRINT SUMMARY: Print the pipeline health, price, COT signal, and any failures. Nothing else.
 """
 
 
