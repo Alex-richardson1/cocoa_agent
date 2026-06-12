@@ -53,6 +53,31 @@ else
   git clone https://github.com/Alex-richardson1/cocoa_agent.git .
 fi
 
+echo "Restoring runtime credential files..."
+
+if [ -f /tmp/.env ]; then
+  cp /tmp/.env /workspace/.env
+  echo ".env copied to /workspace/.env"
+else
+  echo "WARNING: /tmp/.env not found"
+fi
+
+if [ -f /tmp/gee-service-account.json ]; then
+  cp /tmp/gee-service-account.json /workspace/gee-service-account.json
+  echo "GEE service account copied to /workspace/gee-service-account.json"
+else
+  echo "WARNING: /tmp/gee-service-account.json not found"
+fi
+
+if [ -f /workspace/.env ]; then
+  echo "Exporting environment variables from /workspace/.env"
+  set -a
+  . /workspace/.env
+  set +a
+else
+  echo "WARNING: /workspace/.env not found; cocoa_agent.py may not have API keys"
+fi
+
 python3 -m venv .venv
 . .venv/bin/activate
 
