@@ -140,22 +140,34 @@ def setup():
     state_files = [
         "cocoa_shadow_ledger.json",
         "cocoa_prediction_ledger.json",
+        "cocoa_opportunity_log.json",
+        "cocoa_monitor_log.json",
         "cot_cocoa_history.json",
+        "ice_warehouse_history.json",
         "cocoa_crop_health.json",
+        "cocoa_crop_diff.json",
+        "cocoa_feedback_summary.json",
         "climatology_cache.json",
+        "cocoa_postmortems.json",
+        "cocoa_weekly_history.json",
         "grinding_data_cache.json",
+        "cocoa_daily_snapshot.json",
+        "cocoa_pipeline_health.json",
+        "cocoa_daily_report.md",
+        "cocoa_daily_rec.json",
     ]
 
     seeded = 0
     for filename in state_files:
         if os.path.exists(filename):
             print(f"  Seeding {filename}...")
-            with open(filename, "r") as f:
+            with open(filename, "r", encoding="utf-8") as f:
                 content = f.read()
+
             client.beta.memory_stores.memories.create(
                 memory_store_id=store_id,
+                path=f"/state/{filename}",
                 content=content,
-                metadata={"filename": filename, "type": "state"},
             )
             seeded += 1
 
@@ -189,6 +201,11 @@ def run_daily():
             "type": "memory_store",
             "memory_store_id": memory_store_id,
             "access": "read_write",
+            "instructions": (
+                "Persistent cocoa surveillance state. State files are stored "
+                "under /state/. Restore them before running the pipeline and "
+                "write updated state files back after the run."
+            ),
         }],
     )
     print(f"Session ID: {session.id}")
