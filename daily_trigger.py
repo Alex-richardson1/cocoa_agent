@@ -53,11 +53,14 @@ else
   git clone https://github.com/Alex-richardson1/cocoa_agent.git .
 fi
 
-python3 -m pip install --upgrade pip setuptools wheel
-python3 -m pip install -r requirements.txt
+python3 -m venv .venv
+. .venv/bin/activate
 
-python3 - <<'PY'
-import yfinance, pandas, numpy, requests, feedparser, bs4, dotenv
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -r requirements.txt
+
+python - <<'PY'
+import yfinance, pandas, numpy, requests, bs4, dotenv
 print("core imports OK")
 PY
 
