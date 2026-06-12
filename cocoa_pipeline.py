@@ -245,7 +245,6 @@ def run_pipeline():
             results["steps"]["related_markets"]["error"] = related_error
 
         log.info(f"  {log_icon} Related markets: {successes}/{total_markets}")
-        log.info(f"  ✅ Related markets: {successes}/{len(RELATED_TICKERS)}")
     except Exception as e:
         results["steps"]["related_markets"] = {"status": "FAIL", "error": str(e)}
         log.warning(f"  ❌ Related markets failed: {e}")
