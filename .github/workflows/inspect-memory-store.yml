@@ -56,3 +56,62 @@ jobs:
           jq '.data | length' memories-root.json
           echo "State count:"
           jq '.data | length' memories-state.json
+
+      - name: Inspect COT history content
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          MEMORY_STORE_ID: ${{ secrets.MEMORY_STORE_ID }}
+        run: |
+          set -euo pipefail
+
+          echo "Finding /state/cot_cocoa_history.json memory..."
+
+          COT_MEMORY_ID=$(
+            curl -sS -G "https://api.anthropic.com/v1/memory_stores/$MEMORY_STORE_ID/memories" \
+              -H "x-api-key: $ANTHROPIC_API_KEY" \
+              -H "anthropic-version: 2023-06-01" \
+              -H "anthropic-beta: managed-agents-2026-04-01" \
+              --data-urlencode "path_prefix=/state/cot_cocoa_history.json" \
+              --data-urlencode "order_by=path" \
+              --data-urlencode "depth=1" \
+              | jq -r '.data[]? | select(.path == "/state/cot_cocoa_history.json") | .id'
+          )
+
+          if [ -z "$COT_MEMORY_ID" ]; then
+            echo "ERROR: Could not find /state/cot_cocoa_history.json in memory store"
+            exit 1
+          fi
+
+          echo "COT memory id: $COT_MEMORY_ID"
+
+          curl -sS "https://api.anthropic.com/v1/memory_stores/$MEMORY_STORE_ID/memories/$COT_MEMORY_ID" \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "anthropic-beta: managed-agents-2026-04-01" \
+            > cot_memory.json
+
+          jq -r '.content' cot_memory.json > cot_cocoa_history.json
+
+          python - <<'PY'
+          import json
+
+          with open("cot_cocoa_history.json", "r", encoding="utf-8") as f:
+              data = json.load(f)
+
+          print("type:", type(data).__name__)
+          print("length:", len(data) if hasattr(data, "__len__") else "N/A")
+
+          if isinstance(data, list) and data:
+              print("first:", data[0])
+              print("last:", data[-1])
+
+              valid_nets = [
+                  x.get("managed_money_net")
+                  for x in data
+                  if isinstance(x, dict) and x.get("managed_money_net") is not None
+              ]
+              print("valid managed_money_net rows:", len(valid_nets))
+
+          elif isinstance(data, dict):
+              print("top-level keys:", list(data.keys())[:20])
+          PY
