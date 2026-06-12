@@ -243,6 +243,12 @@ def _score_positioning(snapshot: dict, rec: dict) -> dict:
             "rationale": "COT percentile not yet available (building history)"
         }
 
+    # Score based on alignment/misalignment
+    specs_long = percentile > 70
+    specs_short = percentile < 30
+    specs_extreme_long = percentile > 85
+    specs_extreme_short = percentile < 15
+
     # Determine thesis direction
     assessment = (rec.get("valuation_assessment") or "").lower()
     if "overvalued" in assessment:
@@ -275,12 +281,6 @@ def _score_positioning(snapshot: dict, rec: dict) -> dict:
             "net_position": net_pos,
             "rationale": rationale,
         }
-
-    # Score based on alignment/misalignment
-    specs_long = percentile > 70
-    specs_short = percentile < 30
-    specs_extreme_long = percentile > 85
-    specs_extreme_short = percentile < 15
 
     if thesis == "SHORT":
         if specs_extreme_long:
