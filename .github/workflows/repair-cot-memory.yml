@@ -1,0 +1,109 @@
+name: Repair COT History Memory
+
+on:
+  workflow_dispatch:
+
+jobs:
+  repair-cot-memory:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Install Anthropic SDK
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install anthropic
+
+      - name: Replace memory COT history with repo COT history
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          MEMORY_STORE_ID: ${{ secrets.MEMORY_STORE_ID }}
+        run: |
+          set -euo pipefail
+
+          python - <<'PY'
+          import json
+          import os
+          import sys
+
+          import anthropic
+
+          memory_store_id = os.environ["MEMORY_STORE_ID"]
+          client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+
+          repo_path = "cot_cocoa_history.json"
+
+          if not os.path.exists(repo_path):
+              print(f"ERROR: {repo_path} not found in repo checkout")
+              sys.exit(1)
+
+          with open(repo_path, "r", encoding="utf-8") as f:
+              repo_content = f.read()
+
+          repo_data = json.loads(repo_content)
+          repo_len = len(repo_data) if isinstance(repo_data, list) else None
+
+          print(f"Repo COT history type: {type(repo_data).__name__}")
+          print(f"Repo COT history length: {repo_len}")
+
+          if not isinstance(repo_data, list) or repo_len < 10:
+              print("ERROR: repo cot_cocoa_history.json does not contain enough history")
+              sys.exit(1)
+
+          memories = client.beta.memory_stores.memories.list(
+              memory_store_id=memory_store_id,
+              path_prefix="/state/cot_cocoa_history.json",
+              depth=1,
+          )
+
+          cot_memory = None
+          for memory in memories.data:
+              if memory.path == "/state/cot_cocoa_history.json":
+                  cot_memory = memory
+                  break
+
+          if cot_memory is None:
+              print("ERROR: /state/cot_cocoa_history.json not found in memory store")
+              sys.exit(1)
+
+          print(f"Found memory id: {cot_memory.id}")
+          print(f"Current memory sha: {getattr(cot_memory, 'content_sha256', 'N/A')}")
+
+          existing = client.beta.memory_stores.memories.retrieve(
+              memory_store_id=memory_store_id,
+              memory_id=cot_memory.id,
+          )
+
+          existing_content = existing.content or "[]"
+
+          try:
+              existing_data = json.loads(existing_content)
+          except Exception:
+              existing_data = []
+
+          existing_len = len(existing_data) if isinstance(existing_data, list) else None
+
+          print(f"Existing memory COT history type: {type(existing_data).__name__}")
+          print(f"Existing memory COT history length: {existing_len}")
+
+          if isinstance(existing_data, list) and existing_len is not None and existing_len >= repo_len:
+              print("Memory already has at least as many rows as repo. No update needed.")
+              sys.exit(0)
+
+          updated = client.beta.memory_stores.memories.update(
+              memory_store_id=memory_store_id,
+              memory_id=cot_memory.id,
+              content=repo_content,
+          )
+
+          print("Updated /state/cot_cocoa_history.json memory")
+          print(f"New memory sha: {updated.content_sha256}")
+          print(f"New row count written: {repo_len}")
+
+          first = repo_data[0]
+          last = repo_data[-1]
+          print(f"First report_date: {first.get('report_date')}")
+          print(f"Last report_date: {last.get('report_date')}")
+          PY
