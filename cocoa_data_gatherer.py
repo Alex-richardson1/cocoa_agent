@@ -123,8 +123,11 @@ def fetch_price_data(period: str = "6mo") -> pd.DataFrame:
     if df.empty:
         raise ValueError(f"No data returned for {INSTRUMENT_TICKER}")
 
-    # Flatten MultiIndex columns if present (yfinance quirk)
-    df.columns = [c[0] if isinstance(c, tuple) else c for c in df.columns]
+    # Flatten MultiIndex columns (yfinance 1.4+ returns ('Close', 'CC=F') etc.)
+    if isinstance(df.columns, pd.MultiIndex):
+        df.columns = df.columns.droplevel(1)
+    elif any(isinstance(c, tuple) for c in df.columns):
+        df.columns = [c[0] if isinstance(c, tuple) else c for c in df.columns]
     df.index = pd.to_datetime(df.index)
     df = df[["Open", "High", "Low", "Close", "Volume"]].sort_index()
 
