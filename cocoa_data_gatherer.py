@@ -746,9 +746,27 @@ def fetch_weather(locations: dict) -> dict:
             rain_frontal  = sum(v for v in daily.get("rain_sum", []) if v is not None)
             rain_convect  = sum(v for v in daily.get("showers_sum", []) if v is not None)
             rain_7d       = round(rain_frontal + rain_convect, 1)
-            precip_7d     = sum(v for v in daily.get("precipitation_sum", []) if v is not None)
-            avg_max_t = (sum(v for v in daily.get("temperature_2m_max", []) if v is not None)
-                         / max(1, len([v for v in daily.get("temperature_2m_max", []) if v is not None])))
+
+            precip_7d = round(
+                sum(v for v in daily.get("precipitation_sum", []) if v is not None),
+                1,
+            )
+
+            et0_values = [
+                v for v in daily.get("et0_fao_evapotranspiration", [])
+                if v is not None
+            ]
+            et0_7d = round(sum(et0_values), 1) if et0_values else None
+
+            max_temp_values = [
+                v for v in daily.get("temperature_2m_max", [])
+                if v is not None
+            ]
+            avg_max_t = (
+                sum(max_temp_values) / len(max_temp_values)
+                if max_temp_values
+                else None
+            )
 
             # Effective moisture: rain gets full credit; non-rain precipitation
             # (dew, fog drip, condensation) gets 35% credit — meaningful for
@@ -778,20 +796,25 @@ def fetch_weather(locations: dict) -> dict:
                     flags.append("⚠️ Very low rainfall — potential drought stress")
             elif effective_moisture_7d > 100:
                 flags.append("⚠️ Excessive precipitation — disease/fungal risk (black pod)")
-            if avg_max_t > 35:
+            if avg_max_t is not None and avg_max_t > 35:
                 flags.append("⚠️ High temperatures — heat stress possible")
 
             results[location_name] = {
-                "current_temp_c":         current.get("temperature"),
-                "current_windspeed":      current.get("windspeed"),
-                "rain_7d_mm":             round(rain_7d, 1),
-                "precip_7d_mm":           round(precip_7d, 1),
-                "non_rain_precip_7d_mm":  round(non_rain_precip, 1),
+                "current_temp_c":           current.get("temperature"),
+                "current_windspeed":        current.get("windspeed"),
+                "rain_7d_mm":               round(rain_7d, 1),
+                "precip_7d_mm":             round(precip_7d, 1),
+                "non_rain_precip_7d_mm":    round(non_rain_precip, 1),
                 "effective_moisture_7d_mm": effective_moisture_7d,
-                "avg_max_temp_c":         round(avg_max_t, 1),
-                "crop_stress_flags":      flags if flags else ["No significant stress signals"],
-                "daily_rain_mm":          daily_rain_total,
-                "daily_dates":            daily.get("time", []),
+                "et0_7d_mm":                et0_7d,
+                "avg_max_temp_c":           round(avg_max_t, 1) if avg_max_t is not None else None,
+                "crop_stress_flags":        flags if flags else ["No significant stress signals"],
+                "daily_rain_mm":            daily_rain_total,
+                "daily_et0_mm": [
+                    round(v, 1) if v is not None else None
+                    for v in daily.get("et0_fao_evapotranspiration", [])
+                ],
+                "daily_dates":              daily.get("time", []),
             }
             log.info(
                 f"  → {location_name}: {rain_7d:.1f}mm rain + "
