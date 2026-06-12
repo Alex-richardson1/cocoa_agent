@@ -30,7 +30,6 @@ import requests
 import feedparser
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
-import anthropic
 
 load_dotenv()
 
@@ -503,7 +502,37 @@ def run_summary_agent(article_buckets: dict) -> dict:
     """
     if not ANTHROPIC_API_KEY:
         log.warning("ANTHROPIC_API_KEY not set — skipping summarisation agent")
-        return {"error": "ANTHROPIC_API_KEY not configured"}
+        return {
+            "error": "ANTHROPIC_API_KEY not configured",
+            "directional_signal": "Unknown",
+            "signal_confidence": "Low",
+            "signal_rationale": "News articles were gathered, but Claude summarisation was skipped because ANTHROPIC_API_KEY is not configured.",
+            "recent_summary": "News articles gathered but not summarised.",
+            "background_context": "Background articles gathered but not summarised.",
+            "key_themes": [],
+            "watch_items": [],
+            "key_articles": [],
+            "demand_forecast": {},
+        }
+
+    try:
+        import anthropic
+    except ImportError as e:
+        log.warning(f"anthropic package not installed — skipping summarisation agent: {e}")
+        return {
+            "error": "anthropic package not installed",
+            "directional_signal": "Unknown",
+            "signal_confidence": "Low",
+            "signal_rationale": "News articles were gathered, but Claude summarisation was skipped because the anthropic package is not installed.",
+            "recent_summary": "News articles gathered but not summarised.",
+            "background_context": "Background articles gathered but not summarised.",
+            "key_themes": [],
+            "watch_items": [],
+            "key_articles": [],
+            "demand_forecast": {},
+        }
+
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     today  = datetime.now(timezone.utc).strftime("%Y-%m-%d")
