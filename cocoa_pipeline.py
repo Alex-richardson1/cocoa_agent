@@ -216,10 +216,35 @@ def run_pipeline():
                 snapshot["technicals"]["price"]["current"] / gbpusd, 1
             )
 
-        successes = sum(1 for v in related.values() if v.get("price"))
+        successes = sum(
+            1 for v in related.values()
+            if v.get("price") is not None
+        )
+        total_markets = len(RELATED_TICKERS)
+
+        if successes == total_markets:
+            related_status = "OK"
+            related_error = None
+            log_icon = "✅"
+        elif successes == 0:
+            related_status = "FAIL"
+            related_error = f"0/{total_markets} related markets fetched"
+            log_icon = "❌"
+        else:
+            related_status = "DEGRADED"
+            related_error = f"Only {successes}/{total_markets} related markets fetched"
+            log_icon = "⚠️"
+
         results["steps"]["related_markets"] = {
-            "status": "OK", "fetched": successes, "total": len(RELATED_TICKERS)
+            "status": related_status,
+            "fetched": successes,
+            "total": total_markets,
         }
+
+        if related_error:
+            results["steps"]["related_markets"]["error"] = related_error
+
+        log.info(f"  {log_icon} Related markets: {successes}/{total_markets}")
         log.info(f"  ✅ Related markets: {successes}/{len(RELATED_TICKERS)}")
     except Exception as e:
         results["steps"]["related_markets"] = {"status": "FAIL", "error": str(e)}
@@ -464,12 +489,14 @@ def run_pipeline():
     ok_count = sum(1 for s in results["steps"].values() if s.get("status") == "OK")
     fail_count = sum(1 for s in results["steps"].values() if s.get("status") == "FAIL")
     skip_count = sum(1 for s in results["steps"].values() if s.get("status") == "SKIP")
+    degraded_count = sum(1 for s in results["steps"].values() if s.get("status") == "DEGRADED")
     total = len(results["steps"])
 
     results["health"] = {
         "ok": ok_count,
         "fail": fail_count,
         "skip": skip_count,
+        "degraded": degraded_count,
         "total": total,
         "price_available": price_ok,
         "cot_available": "error" not in snapshot.get("cot", {"error": True}),
@@ -477,15 +504,24 @@ def run_pipeline():
     }
 
     log.info(f"\n{'='*55}")
-    log.info(f"  PIPELINE HEALTH: {ok_count}/{total} OK, {fail_count} FAIL, {skip_count} SKIP")
-    log.info(f"  Price: {'✅' if price_ok else '❌'}  COT: {'✅' if results['health']['cot_available'] else '❌'}  "
-             f"Satellite: {'✅' if results['health']['satellite_available'] else '❌'}")
+    log.info(
+        f"  PIPELINE HEALTH: {ok_count}/{total} OK, "
+        f"{degraded_count} DEGRADED, {fail_count} FAIL, {skip_count} SKIP"
+    )
+    log.info(
+        f"  Price: {'✅' if price_ok else '❌'}  "
+        f"COT: {'✅' if results['health']['cot_available'] else '❌'}  "
+        f"Satellite: {'✅' if results['health']['satellite_available'] else '❌'}"
+    )
     log.info(f"{'='*55}")
 
-    # Print failed steps clearly
+    # Print failed / degraded steps clearly
     for step_name, step_result in results["steps"].items():
-        if step_result.get("status") == "FAIL":
-            log.warning(f"  FAILED: {step_name} — {step_result.get('error', 'unknown')}")
+        if step_result.get("status") in {"FAIL", "DEGRADED"}:
+            log.warning(
+                f"  {step_result.get('status')}: "
+                f"{step_name} — {step_result.get('error', 'unknown')}"
+            )
 
     # ══════════════════════════════════════════════
     #  SAVE RESULTS
@@ -501,7 +537,10 @@ def run_pipeline():
     print("\n" + "=" * 60)
     print("  COCOA PIPELINE RESULTS")
     print("=" * 60)
-    print(f"\nHealth: {ok_count}/{total} steps OK")
+    print(
+        f"\nHealth: {ok_count}/{total} steps OK | "
+        f"{degraded_count} DEGRADED | {fail_count} FAIL | {skip_count} SKIP"
+    )
 
     if price_ok:
         px = snapshot["technicals"]["price"]
