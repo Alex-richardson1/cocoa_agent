@@ -27,7 +27,12 @@ import json
 import logging
 import re
 import requests
-import feedparser
+try:
+    import feedparser
+    FEEDPARSER_AVAILABLE = True
+except ImportError:
+    feedparser = None
+    FEEDPARSER_AVAILABLE = False
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 
@@ -239,6 +244,9 @@ def fetch_analyst_forecasts() -> list:
 
 def fetch_google_news(query: str, days_back: int, max_results: int = 10) -> list:
     """Fetch articles from Google News RSS for a given query and time window."""
+    if not FEEDPARSER_AVAILABLE:
+      log.warning("feedparser not installed — skipping Google News RSS")
+      return []
     encoded = requests.utils.quote(query)
     url     = (
         f"https://news.google.com/rss/search?q={encoded}"
@@ -291,6 +299,9 @@ def fetch_google_news(query: str, days_back: int, max_results: int = 10) -> list
 
 def fetch_specialist_feeds(days_back: int = 30) -> list:
     """Fetch from known specialist commodity news sources."""
+    if not FEEDPARSER_AVAILABLE:
+      log.warning("feedparser not installed — skipping specialist RSS feeds")
+      return []
     cutoff   = datetime.now(timezone.utc) - timedelta(days=days_back)
     articles = []
 
