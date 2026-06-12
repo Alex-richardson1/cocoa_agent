@@ -32,6 +32,134 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
+def load_cached_crop_health_for_agent(filepath: str = "cocoa_crop_health.json") -> dict | None:
+    """
+    Load cached crop health without importing cocoa_crop_monitor.py.
+
+    This avoids importing `ee` at pipeline runtime. The full GEE crop monitor
+    can still be run separately to refresh cocoa_crop_health.json.
+    """
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        return None
+
+    overall = data.get("overall_signal", {})
+    regions = data.get("regions", {})
+    generated_at = data.get("generated_at", "")
+
+    age_days = None
+    try:
+        generated = datetime.fromisoformat(generated_at)
+        age_days = (datetime.now(timezone.utc) - generated).days
+    except Exception:
+        pass
+
+    region_summaries = []
+
+    for region_name, rdata in regions.items():
+        weekly = rdata.get("weekly", rdata.get("monthly", {}))
+        if not weekly:
+            continue
+
+        latest_key = None
+        latest = None
+
+        for wk in sorted(weekly.keys(), reverse=True):
+            candidate = weekly[wk]
+            if (
+                candidate.get("evi") is not None
+                or candidate.get("soil_moisture") is not None
+                or candidate.get("ndmi") is not None
+            ):
+                latest_key = wk
+                latest = candidate
+                break
+
+        if latest is None:
+            latest_key = sorted(weekly.keys())[-1]
+            latest = weekly[latest_key]
+
+        flags = [f["signal"] for f in latest.get("stress_flags", [])]
+        rel_flags = [f["signal"] for f in latest.get("seasonal_flags", [])]
+        chirps_ctx = rdata.get("chirps_context", {})
+
+        region_summaries.append({
+            "region": region_name,
+            "country": rdata.get("country"),
+            "week": latest_key,
+            "evi": latest.get("evi"),
+            "ndvi": latest.get("ndvi"),
+            "ndmi": latest.get("ndmi"),
+            "lai": latest.get("lai"),
+            "lst_c": latest.get("lst_celsius"),
+            "lst_anomaly_c": latest.get("lst_anomaly_c"),
+            "lst_clim_mean_c": latest.get("lst_clim_mean_c"),
+            "soil_moisture": latest.get("soil_moisture"),
+            "soil_moisture_rootzone": latest.get("soil_moisture_rootzone"),
+            "smap_source": latest.get("smap_source", ""),
+            "chirps_rainfall_mm": latest.get("chirps_rainfall_mm"),
+            "rainfall_anomaly_pct": latest.get("rainfall_anomaly_pct"),
+            "rainfall_clim_mean_mm": latest.get("rainfall_clim_mean_mm"),
+            "stress_fraction_ndmi": latest.get("stress_fraction_ndmi"),
+            "stress_fraction_evi": latest.get("stress_fraction_evi"),
+            "sar_vh": latest.get("sar_vh"),
+            "sar_vv": latest.get("sar_vv"),
+            "sar_vh_vv_ratio": latest.get("sar_vh_vv_ratio"),
+            "optical_gap": latest.get("optical_gap", False),
+            "chirps_30d_mm": chirps_ctx.get("chirps_30d_mm"),
+            "chirps_60d_mm": chirps_ctx.get("chirps_60d_mm"),
+            "chirps_90d_mm": chirps_ctx.get("chirps_90d_mm"),
+            "flags": flags,
+            "ndmi_seasonal_mean": latest.get("ndmi_seasonal_mean"),
+            "ndmi_anomaly": latest.get("ndmi_anomaly"),
+            "ndmi_anomaly_pct": latest.get("ndmi_anomaly_pct"),
+            "ndmi_zscore": latest.get("ndmi_zscore"),
+            "evi_seasonal_mean": latest.get("evi_seasonal_mean"),
+            "evi_anomaly": latest.get("evi_anomaly"),
+            "evi_zscore": latest.get("evi_zscore"),
+            "seasonal_label": latest.get("seasonal_label"),
+            "seasonal_n": latest.get("seasonal_n", 0),
+            "seasonal_flags": rel_flags,
+        })
+
+    diff_summary = None
+    last_diff = data.get("last_diff")
+    if last_diff:
+        diff_summary = {
+            "since": last_diff.get("old_generated_at"),
+            "overall_score_change": last_diff.get("overall_score_change"),
+            "old_signal": last_diff.get("old_named_signal"),
+            "new_signal": last_diff.get("new_named_signal"),
+            "regions": {},
+        }
+
+        for rname, rdiff in last_diff.get("regions", {}).items():
+            changes = {}
+            for field in ["evi", "ndmi", "soil_moisture"]:
+                if field in rdiff:
+                    changes[field] = rdiff[field]
+            if changes:
+                diff_summary["regions"][rname] = changes
+
+    return {
+        "version": data.get("version", "1.0"),
+        "granularity": data.get("granularity", "monthly"),
+        "data_age_days": age_days,
+        "stale": age_days > 14 if age_days is not None else None,
+        "overall_score": overall.get("score"),
+        "named_signal": overall.get("named_signal"),
+        "overall_bias": overall.get("bias"),
+        "overall_signal": overall.get("signal"),
+        "avg_evi": overall.get("avg_evi"),
+        "avg_ndmi": overall.get("avg_ndmi"),
+        "avg_soil_moisture": overall.get("avg_soil_moisture"),
+        "critical_flags": overall.get("critical_flags"),
+        "warning_flags": overall.get("warning_flags"),
+        "regions": region_summaries,
+        "diff": diff_summary,
+    }
 
 def run_pipeline():
     """Run the full data gathering pipeline with error isolation."""
@@ -189,17 +317,26 @@ def run_pipeline():
     #  STEP 7: Crop Monitor (GEE)
     # ══════════════════════════════════════════════
     try:
-        log.info("Step 7: Running crop monitor...")
-        from cocoa_crop_monitor import load_crop_health_for_agent
+        log.info("Step 7: Loading cached crop health...")
 
-        crop = load_crop_health_for_agent()
+        crop = load_cached_crop_health_for_agent()
+
         if crop:
             snapshot["crop_health"] = crop
-            results["steps"]["crop_monitor"] = {"status": "OK"}
-            log.info("  ✅ Crop health loaded from cache")
+            results["steps"]["crop_monitor"] = {
+                "status": "OK",
+                "source": "cached",
+                "data_age_days": crop.get("data_age_days"),
+                "stale": crop.get("stale"),
+                "signal": crop.get("named_signal") or crop.get("overall_signal"),
+            }
+            log.info("  ✅ Crop health loaded from cached cocoa_crop_health.json")
         else:
-            results["steps"]["crop_monitor"] = {"status": "SKIP", "error": "No cached data"}
-            log.info("  ⏭️ Crop monitor: no cached data")
+            results["steps"]["crop_monitor"] = {
+                "status": "SKIP",
+                "error": "No cached cocoa_crop_health.json found",
+            }
+            log.info("  ⏭️ Crop monitor: no cached cocoa_crop_health.json found")
     except Exception as e:
         results["steps"]["crop_monitor"] = {"status": "FAIL", "error": str(e)}
         log.warning(f"  ❌ Crop monitor failed: {e}")
