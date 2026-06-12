@@ -55,6 +55,7 @@ jobs:
           memories = client.beta.memory_stores.memories.list(
               memory_store_id=memory_store_id,
               path_prefix="/state/cot_cocoa_history.json",
+              order_by="path",
               depth=1,
           )
 
