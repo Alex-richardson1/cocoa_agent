@@ -1,0 +1,58 @@
+name: Inspect Cocoa Memory Store
+
+on:
+  workflow_dispatch:
+
+jobs:
+  inspect-memory:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Inspect existing memory store
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          MEMORY_STORE_ID: ${{ secrets.MEMORY_STORE_ID }}
+        run: |
+          set -euo pipefail
+
+          echo "Inspecting memory store:"
+          echo "${MEMORY_STORE_ID:0:16}..."
+
+          echo ""
+          echo "=== Store metadata ==="
+          curl -sS "https://api.anthropic.com/v1/memory_stores/$MEMORY_STORE_ID" \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "anthropic-beta: managed-agents-2026-04-01" \
+            | jq '{id, name, description, created_at, updated_at, metadata}'
+
+          echo ""
+          echo "=== Top-level memories ==="
+          curl -sS -G "https://api.anthropic.com/v1/memory_stores/$MEMORY_STORE_ID/memories" \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "anthropic-beta: managed-agents-2026-04-01" \
+            --data-urlencode "path_prefix=/" \
+            --data-urlencode "order_by=path" \
+            --data-urlencode "depth=2" \
+            | tee memories-root.json \
+            | jq -r '.data[]? | "\(.id)  \(.path)  sha=\(.content_sha256 // "n/a")"'
+
+          echo ""
+          echo "=== /state memories ==="
+          curl -sS -G "https://api.anthropic.com/v1/memory_stores/$MEMORY_STORE_ID/memories" \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "anthropic-beta: managed-agents-2026-04-01" \
+            --data-urlencode "path_prefix=/state/" \
+            --data-urlencode "order_by=path" \
+            --data-urlencode "depth=2" \
+            | tee memories-state.json \
+            | jq -r '.data[]? | "\(.id)  \(.path)  sha=\(.content_sha256 // "n/a")"'
+
+          echo ""
+          echo "=== Counts ==="
+          echo "Root count:"
+          jq '.data | length' memories-root.json
+          echo "State count:"
+          jq '.data | length' memories-state.json
