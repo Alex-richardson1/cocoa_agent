@@ -61,9 +61,60 @@ import yfinance, pandas, numpy, requests, feedparser, bs4, dotenv
 print("core imports OK")
 PY
 
-mkdir -p /mnt/memory/cocoa-surveillance-memory/state
-cp /mnt/memory/cocoa-surveillance-memory/state/*.json /workspace/ 2>/dev/null || true
-cp /mnt/memory/cocoa-surveillance-memory/state/*.md /workspace/ 2>/dev/null || true
+MEMORY_DIR="/mnt/memory/cocoa-surveillance-memory"
+STATE_DIR="$MEMORY_DIR/state"
+
+echo "Checking memory mount..."
+if [ ! -d "$MEMORY_DIR" ]; then
+  echo "ERROR: memory store mount not found at $MEMORY_DIR"
+  echo "Available /mnt contents:"
+  ls -lah /mnt || true
+  exit 1
+fi
+
+echo "Checking memory state directory..."
+if [ ! -d "$STATE_DIR" ]; then
+  echo "ERROR: memory state directory not found at $STATE_DIR"
+  echo "Memory store contents:"
+  ls -lah "$MEMORY_DIR" || true
+  exit 1
+fi
+
+echo "Memory state files:"
+ls -lah "$STATE_DIR" || true
+
+echo "Restoring state files into /workspace..."
+cp "$STATE_DIR"/*.json /workspace/ || true
+cp "$STATE_DIR"/*.md /workspace/ || true
+
+echo "Restored workspace state files:"
+ls -lah /workspace/*.json /workspace/*.md 2>/dev/null || true
+
+echo "COT history restore check:"
+python3 - <<'PY'
+import json
+import os
+
+path = "/workspace/cot_cocoa_history.json"
+
+if not os.path.exists(path):
+    print("ERROR: cot_cocoa_history.json was not restored")
+else:
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    print(f"cot_cocoa_history type: {type(data).__name__}")
+    print(f"cot_cocoa_history length: {len(data) if hasattr(data, '__len__') else 'N/A'}")
+
+    if isinstance(data, list) and data:
+        first = data[0]
+        last = data[-1]
+        print(f"first report_date: {first.get('report_date')}")
+        print(f"last report_date: {last.get('report_date')}")
+        print(f"last managed_money_net: {last.get('managed_money_net')}")
+    elif isinstance(data, dict):
+        print(f"top-level keys: {list(data.keys())[:20]}")
+PY
 
 PIPELINE_STATUS=0
 python3 cocoa_pipeline.py || PIPELINE_STATUS=$?
@@ -94,10 +145,20 @@ do
   [ -f "/workspace/$f" ] && cp "/workspace/$f" /mnt/memory/cocoa-surveillance-memory/state/
 done
 
-cat cocoa_pipeline_health.json
-exit "$PIPELINE_STATUS"
-"""
+```python
+if [ -f cocoa_pipeline_health.json ]; then
+  cat cocoa_pipeline_health.json
+else
+  echo "WARNING: cocoa_pipeline_health.json was not created"
+fi
 
+echo "Saved memory state files:"
+ls -lah "$STATE_DIR" || true
+
+exit "$PIPELINE_STATUS"
+exit "$PIPELINE_STATUS"
+
+"""
 
 def get_memory_store_id() -> str:
     """Load or prompt for the memory store ID."""
