@@ -250,11 +250,30 @@ def _score_positioning(snapshot: dict, rec: dict) -> dict:
     elif "undervalued" in assessment:
         thesis = "LONG"
     else:
+        # No directional thesis, but extreme positioning is still noteworthy
+        if specs_extreme_short:
+            score = 55
+            rationale = (
+                f"No directional thesis, but COT at {percentile:.0f}th percentile "
+                f"is EXTREMELY SHORT — any bullish catalyst could trigger a violent "
+                f"short squeeze. Monitor closely for a thesis to form."
+            )
+        elif specs_extreme_long:
+            score = 55
+            rationale = (
+                f"No directional thesis, but COT at {percentile:.0f}th percentile "
+                f"is EXTREMELY LONG — any bearish catalyst could trigger liquidation. "
+                f"Monitor closely for a thesis to form."
+            )
+        else:
+            score = 30
+            rationale = f"No directional thesis — COT at {percentile:.0f}th percentile"
+
         return {
-            "score": 30,
+            "score": score,
             "percentile": percentile,
             "net_position": net_pos,
-            "rationale": f"No directional thesis — COT at {percentile}th percentile"
+            "rationale": rationale,
         }
 
     # Score based on alignment/misalignment
