@@ -39,31 +39,63 @@ ENVIRONMENT_ID = os.environ.get("ENVIRONMENT_ID", "")
 MEMORY_STORE_ID_FILE = ".memory_store_id"
 
 DAILY_INSTRUCTION = """
-Run the cocoa market surveillance pipeline. Follow these steps EXACTLY.
-Do NOT recreate any Python scripts. Do NOT send Telegram messages. Do NOT improvise.
+Run this bash script exactly. Print stdout/stderr. Do not add steps.
 
-1. CLONE REPO:
-   cd /workspace && git clone https://github.com/Alex-richardson1/cocoa_agent.git . 2>/dev/null || git pull origin main 2>/dev/null
+```bash
+set -u
 
-2. MOVE CREDENTIALS:
-   cp /tmp/.env /workspace/.env 2>/dev/null; cp /tmp/gee-service-account.json /workspace/gee-service-account.json 2>/dev/null
+cd /workspace
 
-3. INSTALL DEPENDENCIES:
-   pip install -q pandas numpy yfinance requests feedparser python-dotenv httpx earthengine-api 2>/dev/null || true
-   python3 -c "import importlib, pathlib, site; exec(\"try:\\n import sgmllib\\nexcept ImportError:\\n sp=site.getsitepackages()[0]\\n pathlib.Path(sp+'/sgmllib.py').write_text('from html.parser import HTMLParser as SGMLParser\\\\nclass TestSGMLParser: pass\\\\n')\\n print('sgmllib stub created')\")" 2>/dev/null || true
+if [ -d .git ]; then
+  git fetch origin main
+  git reset --hard origin/main
+else
+  git clone https://github.com/Alex-richardson1/cocoa_agent.git .
+fi
 
-4. RESTORE STATE:
-   mkdir -p /mnt/memory/cocoa-surveillance-memory/state; cp /mnt/memory/cocoa-surveillance-memory/state/*.json /workspace/ 2>/dev/null; cp /mnt/memory/cocoa-surveillance-memory/state/*.md /workspace/ 2>/dev/null; echo "State restored"
+python3 -m pip install --upgrade pip setuptools wheel
+python3 -m pip install -r requirements.txt
 
-5. RUN PIPELINE:
-   cd /workspace && python3 cocoa_pipeline.py
+python3 - <<'PY'
+import yfinance, pandas, numpy, requests, feedparser, bs4, dotenv
+print("core imports OK")
+PY
 
-6. READ THE PIPELINE OUTPUT and the health report. Print the health summary.
+mkdir -p /mnt/memory/cocoa-surveillance-memory/state
+cp /mnt/memory/cocoa-surveillance-memory/state/*.json /workspace/ 2>/dev/null || true
+cp /mnt/memory/cocoa-surveillance-memory/state/*.md /workspace/ 2>/dev/null || true
 
-7. SAVE STATE:
-   cp /workspace/cocoa_shadow_ledger.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_prediction_ledger.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_opportunity_log.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cot_cocoa_history.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_crop_health.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_feedback_summary.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/climatology_cache.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_postmortems.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_weekly_history.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_daily_snapshot.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_pipeline_health.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; echo "State saved"
+PIPELINE_STATUS=0
+python3 cocoa_pipeline.py || PIPELINE_STATUS=$?
 
-8. PRINT SUMMARY: Print the pipeline health, price, COT signal, and any failures. Nothing else.
+# Run the analyst/alerting layer only if price exists.
+if [ "$PIPELINE_STATUS" -eq 0 ]; then
+  python3 cocoa_agent.py || true
+fi
+
+for f in \
+  cocoa_shadow_ledger.json \
+  cocoa_prediction_ledger.json \
+  cocoa_opportunity_log.json \
+  cocoa_monitor_log.json \
+  cot_cocoa_history.json \
+  ice_warehouse_history.json \
+  cocoa_crop_health.json \
+  cocoa_crop_diff.json \
+  cocoa_feedback_summary.json \
+  climatology_cache.json \
+  cocoa_postmortems.json \
+  cocoa_weekly_history.json \
+  cocoa_daily_snapshot.json \
+  cocoa_pipeline_health.json \
+  cocoa_daily_report.md \
+  cocoa_daily_rec.json
+do
+  [ -f "/workspace/$f" ] && cp "/workspace/$f" /mnt/memory/cocoa-surveillance-memory/state/
+done
+
+cat cocoa_pipeline_health.json
+exit "$PIPELINE_STATUS"
 """
 
 
