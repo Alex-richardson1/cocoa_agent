@@ -39,6 +39,7 @@ jobs:
         env:
           GEE_SERVICE_ACCOUNT_JSON: ${{ secrets.GEE_SERVICE_ACCOUNT_JSON }}
           COCOA_ENV_FILE: ${{ secrets.COCOA_ENV_FILE }}
+          GEE_PROJECT_SECRET: ${{ secrets.GEE_PROJECT }}
         run: |
           if [ -n "$GEE_SERVICE_ACCOUNT_JSON" ]; then
             printf '%s' "$GEE_SERVICE_ACCOUNT_JSON" > gee-service-account.json
@@ -50,6 +51,12 @@ jobs:
             printf '%s' "$COCOA_ENV_FILE" > .env
           else
             echo "NOTE: COCOA_ENV_FILE not set — relying on individual env vars"
+          fi
+          # GEE_PROJECT can come from its own repo secret (takes precedence)
+          # or from a GEE_PROJECT= line inside the COCOA_ENV_FILE secret.
+          if [ -n "$GEE_PROJECT_SECRET" ]; then
+            echo "GEE_PROJECT=$GEE_PROJECT_SECRET" >> "$GITHUB_ENV"
+            echo "GEE_PROJECT exported from repo secret"
           fi
 
       - name: Run data pipeline
