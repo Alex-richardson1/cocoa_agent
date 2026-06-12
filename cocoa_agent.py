@@ -1243,49 +1243,76 @@ def run_agent(snapshot_file: str = SNAPSHOT_FILE, dry_run: bool = False):
 
     # ── Opportunity Scoring ───────────────────────────────
     # This is the core decision: should we alert the user or stay silent?
-    alert_level = "OPPORTUNITY"   # Default: always send (fallback if scorer unavailable)
-    opp_result  = None
-    parsed_rec  = {}              # Initialised here so it's always in scope below
+    # IMPORTANT: fail closed. If scoring is unavailable or fails, do not alert.
 
-    if SCORER_AVAILABLE and FEEDBACK_AVAILABLE:
+    parsed_rec = {}  # Initialised here so it's always in scope below
+
+    opp_result = {
+        "total_score": 0,
+        "alert_level": "SILENT",
+        "direction": "NONE",
+        "components": {},
+        "summary": "Opportunity scoring unavailable; defaulting to SILENT.",
+        "scored_at": datetime.now(timezone.utc).isoformat(),
+    }
+    alert_level = opp_result["alert_level"]
+
+    if SCORER_AVAILABLE:
         try:
-            # Parse the recommendation for scoring
-            parsed_rec = extract_recommendation(raw_report)
+            # Parse the recommendation for scoring.
+            # Prefer the already-imported feedback extractor when available.
+            if FEEDBACK_AVAILABLE:
+                parsed_rec = extract_recommendation(raw_report)
+            else:
+                parsed_rec = {}
 
-            # Load feedback stats for track record scoring
-            import json as _json
+            # Load feedback stats for track-record scoring when available.
             feedback_stats = None
-            try:
-                with open("cocoa_feedback_summary.json", "r") as f:
-                    feedback_stats = _json.load(f)
-            except (FileNotFoundError, _json.JSONDecodeError):
-                pass
+            if FEEDBACK_AVAILABLE:
+                import json as _json
 
-            opp_result = score_opportunity(snapshot, parsed_rec, feedback_stats)
-            alert_level = opp_result["alert_level"]
+                try:
+                    with open("cocoa_feedback_summary.json", "r", encoding="utf-8") as f:
+                        feedback_stats = _json.load(f)
+                except (FileNotFoundError, _json.JSONDecodeError):
+                    feedback_stats = None
 
-            # Log the opportunity score (always)
-            log_opportunity(opp_result, snapshot)
+            # Score the current setup.
+            scored = score_opportunity(snapshot, parsed_rec, feedback_stats)
+
+            if scored:
+                opp_result = scored
+                alert_level = opp_result.get("alert_level", "SILENT")
+            else:
+                log.warning("Opportunity scoring returned no result; defaulting to SILENT")
+                alert_level = "SILENT"
+                opp_result = {
+                    "total_score": 0,
+                    "alert_level": "SILENT",
+                    "direction": "NONE",
+                    "components": {},
+                    "summary": "Opportunity scoring returned no result; defaulting to SILENT.",
+                    "scored_at": datetime.now(timezone.utc).isoformat(),
+                }
+
+            # Log the opportunity score only when the scorer produced a valid result.
+            if opp_result.get("scored_at") and opp_result.get("components") is not None:
+                log_opportunity(opp_result, snapshot)
 
         except Exception as e:
-            log.warning(f"Opportunity scoring failed (non-critical): {e}")
-            alert_level = "OPPORTUNITY"  # Fail open — send the report
+            log.warning(f"Opportunity scoring failed; defaulting to SILENT: {e}")
+            alert_level = "SILENT"
+            opp_result = {
+                "total_score": 0,
+                "alert_level": "SILENT",
+                "direction": "NONE",
+                "components": {},
+                "summary": "Opportunity scoring failed; defaulting to SILENT.",
+                "scored_at": datetime.now(timezone.utc).isoformat(),
+            }
 
-    elif SCORER_AVAILABLE:
-        try:
-            parsed_rec = {}
-            # Try basic extraction without full feedback
-            try:
-                from cocoa_feedback import extract_recommendation as _extract
-                parsed_rec = _extract(raw_report)
-            except ImportError:
-                pass
-            opp_result = score_opportunity(snapshot, parsed_rec, None)
-            alert_level = opp_result["alert_level"]
-            log_opportunity(opp_result, snapshot)
-        except Exception as e:
-            log.warning(f"Opportunity scoring failed: {e}")
-
+    else:
+        log.warning("Opportunity scorer unavailable; defaulting to SILENT")
     # ── Shadow prediction recording (every run, regardless of alert level) ──
     if WEEKLY_REVIEW_AVAILABLE:
         try:
