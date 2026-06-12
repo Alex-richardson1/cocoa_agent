@@ -78,8 +78,7 @@ Do NOT improvise or add extra steps. Just execute the commands below.
    python3 cocoa_agent.py
 
 8. SAVE STATE back to memory:
-   cp /workspace/cocoa_shadow_ledger.json /workspace/cocoa_prediction_ledger.json /workspace/cocoa_opportunity_log.json /workspace/cot_cocoa_history.json /workspace/cocoa_crop_health.json /workspace/cocoa_feedback_summary.json /workspace/climatology_cache.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null
-   cp /workspace/cocoa_postmortems.json /workspace/cocoa_weekly_history.json /workspace/cocoa_weekly_report.md /workspace/cocoa_daily_report.md /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null
+cp /workspace/cocoa_shadow_ledger.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_prediction_ledger.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_opportunity_log.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cot_cocoa_history.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_crop_health.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_feedback_summary.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/climatology_cache.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_postmortems.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_weekly_history.json /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_daily_report.md /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; cp /workspace/cocoa_weekly_report.md /mnt/memory/cocoa-surveillance-memory/state/ 2>/dev/null; echo "State saved"
 
 9. PRINT SUMMARY (console only — no Telegram):
    Print the opportunity score, alert level, and one-line summary. Nothing else.
