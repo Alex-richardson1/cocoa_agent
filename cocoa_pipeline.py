@@ -287,9 +287,12 @@ def run_pipeline():
             "signal": news.get("directional_signal"),
         }
         log.info(f"  ✅ News: {news.get('directional_signal')}")
-    except ImportError:
-        results["steps"]["news"] = {"status": "SKIP", "error": "cocoa_news_agent not available"}
-        log.info("  ⏭️ News: module not available, skipping")
+    except ImportError as e:
+        results["steps"]["news"] = {
+            "status": "SKIP",
+            "error": f"cocoa_news_agent import failed: {e}",
+        }
+        log.info(f"  ⏭️ News: import failed, skipping: {e}")
     except Exception as e:
         results["steps"]["news"] = {"status": "FAIL", "error": str(e)}
         log.warning(f"  ❌ News failed: {e}")
