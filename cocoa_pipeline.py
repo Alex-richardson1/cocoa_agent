@@ -465,25 +465,48 @@ def run_pipeline():
 
         crop_source = "cached"
         if needs_refresh:
-            log.info(
-                f"  Crop cache missing or stale (age={cache_age}d, "
-                f"max={max_age}d) — attempting GEE refresh..."
-            )
-            try:
-                from cocoa_crop_monitor import run_crop_monitor
+            gee_project = os.getenv("GEE_PROJECT", "")
+            gee_creds = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
 
-                run_crop_monitor(generate_chart=False)
-                crop = load_cached_crop_health_for_agent()
-                crop_source = "gee_refreshed"
-                log.info("  ✅ GEE crop monitor refreshed successfully")
-            except Exception as e:
-                crop_source = "cached_after_refresh_failure"
-                log.warning(f"  ⚠️ GEE refresh failed, falling back to cache: {e}")
+            if not gee_project:
+                crop_source = "cached_no_gee_config"
+                log.warning(
+                    "  ⚠️ Crop cache stale but GEE_PROJECT not set — "
+                    "add GEE_PROJECT=<project-id> to the COCOA_ENV_FILE secret. "
+                    "Using cache."
+                )
+            elif not (gee_creds and os.path.exists(gee_creds)):
+                crop_source = "cached_no_gee_config"
+                log.warning(
+                    "  ⚠️ Crop cache stale but GOOGLE_APPLICATION_CREDENTIALS "
+                    "missing or file not found — using cache."
+                )
+            else:
+                log.info(
+                    f"  Crop cache missing or stale (age={cache_age}d, "
+                    f"max={max_age}d) — attempting GEE refresh..."
+                )
+                try:
+                    from cocoa_crop_monitor import run_crop_monitor
+
+                    run_crop_monitor(generate_chart=False)
+                    crop = load_cached_crop_health_for_agent()
+                    crop_source = "gee_refreshed"
+                    log.info("  ✅ GEE crop monitor refreshed successfully")
+                except BaseException as e:
+                    # BaseException: a SystemExit from a library must never
+                    # take down the whole pipeline. Re-raise only true
+                    # interrupts.
+                    if isinstance(e, KeyboardInterrupt):
+                        raise
+                    crop_source = "cached_after_refresh_failure"
+                    log.warning(f"  ⚠️ GEE refresh failed, falling back to cache: {e}")
 
         if crop:
             snapshot["crop_health"] = crop
+            degraded_sources = ("cached_after_refresh_failure", "cached_no_gee_config")
             results["steps"]["crop_monitor"] = {
-                "status": "OK" if crop_source != "cached_after_refresh_failure" else "DEGRADED",
+                "status": "OK" if crop_source not in degraded_sources else "DEGRADED",
                 "source": crop_source,
                 "data_age_days": crop.get("data_age_days"),
                 "stale": crop.get("stale"),

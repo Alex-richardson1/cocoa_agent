@@ -119,26 +119,6 @@ jobs:
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
-      # A silent system must never fail silently: ping Telegram if the
-      # workflow itself breaks, so "no alerts" always means "no opportunity".
-      - name: Notify on workflow failure
-        if: failure()
-        run: |
-          if [ -f .env ]; then
-            BOT_TOKEN=$(grep -E '^TELEGRAM_BOT_TOKEN=' .env | cut -d= -f2- | tr -d '"' | tr -d "'")
-            CHAT_ID=$(grep -E '^TELEGRAM_CHAT_ID=' .env | cut -d= -f2- | tr -d '"' | tr -d "'")
-            if [ -n "$BOT_TOKEN" ] && [ -n "$CHAT_ID" ]; then
-              curl -sS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
-                -d chat_id="${CHAT_ID}" \
-                --data-urlencode text="⚠️ Cocoa daily workflow FAILED ($(date -u +%F)). Check: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
-                > /dev/null && echo "Failure notification sent to Telegram"
-            else
-              echo "Telegram credentials not found in .env — no failure ping sent"
-            fi
-          else
-            echo ".env not present — no failure ping sent"
-          fi
-
       # Persist learning/state files back to the repo. Runs even if the
       # pipeline or agent failed, so partial state (e.g. scored predictions)
       # is never lost.
@@ -167,6 +147,7 @@ jobs:
             cocoa_weekly_history.json
             grinding_data_cache.json
             grinding_impact_history.json
+            cocoa_news_intelligence.json
             cocoa_daily_snapshot.json
             cocoa_pipeline_health.json
             cocoa_daily_report.md
@@ -178,11 +159,35 @@ jobs:
             [ -f "$f" ] && git add "$f"
           done
 
+          echo "Working tree after staging:"
+          git status --short
+
           if git diff --cached --quiet; then
             echo "No state changes to commit."
           else
             git commit -m "chore: daily state $(date -u +%F) [skip ci]"
-            # Handle any push that landed since checkout
-            git pull --rebase origin main
+            # --autostash: never let stray unstaged files block the rebase
+            git pull --rebase --autostash origin main
             git push origin main
+          fi
+
+      # A silent system must never fail silently: ping Telegram if the
+      # workflow itself breaks, so "no alerts" always means "no opportunity".
+      # Reads credentials from the secret directly (not the .env file, which
+      # is deleted by the commit step) and runs LAST so it catches failures
+      # in any step, including the state commit itself.
+      - name: Notify on workflow failure
+        if: failure()
+        env:
+          COCOA_ENV_FILE: ${{ secrets.COCOA_ENV_FILE }}
+        run: |
+          BOT_TOKEN=$(printf '%s' "$COCOA_ENV_FILE" | grep -E '^TELEGRAM_BOT_TOKEN=' | head -1 | cut -d= -f2- | tr -d '"' | tr -d "'" | tr -d '\r')
+          CHAT_ID=$(printf '%s' "$COCOA_ENV_FILE" | grep -E '^TELEGRAM_CHAT_ID=' | head -1 | cut -d= -f2- | tr -d '"' | tr -d "'" | tr -d '\r')
+          if [ -n "$BOT_TOKEN" ] && [ -n "$CHAT_ID" ]; then
+            curl -sS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+              -d chat_id="${CHAT_ID}" \
+              --data-urlencode text="⚠️ Cocoa daily workflow FAILED ($(date -u +%F)). Check: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+              > /dev/null && echo "Failure notification sent to Telegram"
+          else
+            echo "Telegram credentials not found in COCOA_ENV_FILE secret — no failure ping sent"
           fi

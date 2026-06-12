@@ -144,15 +144,21 @@ def initialise_gee():
     """
     Initialise Google Earth Engine.
     Supports service account or OAuth credentials.
+
+    Raises RuntimeError on failure (catchable by callers — never
+    terminates the calling process).
     """
     import google.oauth2.service_account as sa
 
     log.info("Initialising Google Earth Engine...")
 
-    if not GEE_PROJECT:
+    # Re-read at call time in case .env was loaded after module import
+    project = GEE_PROJECT or os.getenv("GEE_PROJECT", "")
+
+    if not project:
         log.error("GEE_PROJECT is not set in your .env file.")
         log.error("Add this line:  GEE_PROJECT=your-project-id-here")
-        raise SystemExit(1)
+        raise RuntimeError("GEE_PROJECT not set")
 
     key_file = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
 
@@ -163,12 +169,12 @@ def initialise_gee():
                 key_file,
                 scopes=["https://www.googleapis.com/auth/earthengine"]
             )
-            ee.Initialize(credentials=credentials, project=GEE_PROJECT)
+            ee.Initialize(credentials=credentials, project=project)
         else:
             log.info("  Using OAuth credentials (from ee.Authenticate())")
-            ee.Initialize(project=GEE_PROJECT)
+            ee.Initialize(project=project)
 
-        log.info(f"  GEE initialised (project: {GEE_PROJECT})")
+        log.info(f"  GEE initialised (project: {project})")
 
     except ee.EEException as e:
         err = str(e).lower()
@@ -178,11 +184,11 @@ def initialise_gee():
             log.error("Try one of these fixes:")
             log.error("  Option A: python -c \"import ee; ee.Authenticate()\"")
             log.error("  Option B: Set GOOGLE_APPLICATION_CREDENTIALS in .env")
-        raise SystemExit(1)
+        raise RuntimeError(f"GEE initialisation failed: {e}") from e
 
     except Exception as e:
         log.error(f"Unexpected error during GEE init: {e}")
-        raise SystemExit(1)
+        raise RuntimeError(f"Unexpected error during GEE init: {e}") from e
 
 
 # ─────────────────────────────────────────────
