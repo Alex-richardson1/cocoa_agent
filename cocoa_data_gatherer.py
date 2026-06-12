@@ -1294,9 +1294,10 @@ def gather_all_data() -> dict:
     # 5d. Grinding release impact model
     if GRINDING_IMPACT_AVAILABLE:
         try:
-            current_price = snapshot.get("technicals", {}).get("price", {}).get("current")
+            # NOTE: must be the GBP price — passing USD here skews the
+            # GBP/tonne impact estimates by ~25%.
             grinding_impact = compute_grinding_impact(
-                current_price_gbp=current_price,
+                current_price_gbp=snapshot.get("price_gbp"),
                 fill_prices=True,
             )
             snapshot["grinding_impact"] = grinding_impact

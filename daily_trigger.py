@@ -1,6 +1,13 @@
 """
 =============================================================
   COCOA AGENT — Daily Trigger (Memory Store version)
+
+  *** DEPRECATED — no longer used ***
+  The daily run now executes directly in GitHub Actions
+  (.github/workflows/daily_run.yml) with state persisted via
+  git commits. This file is kept for reference only. Note its
+  DAILY_INSTRUCTION contained a broken ```python fence that
+  cut the bash script short.
 =============================================================
   Creates a Managed Agents session with a persistent memory
   store attached, runs the full pipeline. State files live in

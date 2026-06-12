@@ -4,23 +4,185 @@ on:
   schedule:
     - cron: '0 8 * * 1-5'
   workflow_dispatch:
+    inputs:
+      force_alert:
+        description: 'Force OPPORTUNITY alert level (testing only)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+# Never let two runs race each other over the state commit
+concurrency:
+  group: cocoa-daily
+  cancel-in-progress: false
 
 jobs:
   daily-run:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install anthropic
-      - name: Run daily trigger
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Write runtime credentials
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          AGENT_ID: ${{ secrets.AGENT_ID }}
-          ENVIRONMENT_ID: ${{ secrets.ENVIRONMENT_ID }}
-          MEMORY_STORE_ID: ${{ secrets.MEMORY_STORE_ID }}
           GEE_SERVICE_ACCOUNT_JSON: ${{ secrets.GEE_SERVICE_ACCOUNT_JSON }}
           COCOA_ENV_FILE: ${{ secrets.COCOA_ENV_FILE }}
-        run: python daily_trigger.py
+        run: |
+          if [ -n "$GEE_SERVICE_ACCOUNT_JSON" ]; then
+            printf '%s' "$GEE_SERVICE_ACCOUNT_JSON" > gee-service-account.json
+            echo "GOOGLE_APPLICATION_CREDENTIALS=$PWD/gee-service-account.json" >> "$GITHUB_ENV"
+          else
+            echo "NOTE: GEE_SERVICE_ACCOUNT_JSON not set — crop monitor will use cache only"
+          fi
+          if [ -n "$COCOA_ENV_FILE" ]; then
+            printf '%s' "$COCOA_ENV_FILE" > .env
+          else
+            echo "NOTE: COCOA_ENV_FILE not set — relying on individual env vars"
+          fi
+
+      - name: Run data pipeline
+        id: pipeline
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python cocoa_pipeline.py
+
+      - name: Run analysis agent
+        if: steps.pipeline.outcome == 'success'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          COCOA_FORCE_ALERT: ${{ (github.event_name == 'workflow_dispatch' && inputs.force_alert) && '1' || '0' }}
+        run: python cocoa_agent.py
+
+      - name: Show pipeline health
+        if: always()
+        run: |
+          if [ -f cocoa_pipeline_health.json ]; then
+            cat cocoa_pipeline_health.json
+          else
+            echo "WARNING: cocoa_pipeline_health.json was not created"
+          fi
+
+      # Rendered summary on the run page — the "session output" view.
+      # Shows the alert decision, pipeline health, and the full daily report.
+      - name: Publish run summary
+        if: always()
+        run: |
+          {
+            echo "## 🍫 Daily Cocoa Run — $(date -u +%F)"
+            echo ""
+            if [ -f cocoa_pipeline_health.json ]; then
+              python3 - <<'PY'
+          import json
+          h = json.load(open("cocoa_pipeline_health.json"))
+          hl = h.get("health", {})
+          print(f"**Pipeline:** {hl.get('ok')}/{hl.get('total')} OK | "
+                f"{hl.get('degraded')} degraded | {hl.get('fail')} fail | {hl.get('skip')} skip")
+          print(f"**Price:** {'✅' if hl.get('price_available') else '❌'} | "
+                f"**COT:** {'✅' if hl.get('cot_available') else '❌'} | "
+                f"**Satellite:** {'✅' if hl.get('satellite_available') else '❌'}")
+          print()
+          for name, step in h.get("steps", {}).items():
+              if step.get("status") in ("FAIL", "DEGRADED"):
+                  print(f"- ⚠️ `{name}`: {step.get('status')} — {step.get('error','')}")
+          PY
+            fi
+            if [ -f cocoa_alert_state.json ]; then
+              echo ""
+              python3 - <<'PY'
+          import json
+          s = json.load(open("cocoa_alert_state.json"))
+          last = s.get("last_opportunity_alert")
+          if last:
+              print(f"**Last OPPORTUNITY alert:** {last.get('sent_at','')[:10]} "
+                    f"({last.get('direction')}, score {last.get('score')})")
+          PY
+            fi
+            echo ""
+            echo "---"
+            echo ""
+            if [ -f cocoa_daily_report.md ]; then
+              cat cocoa_daily_report.md
+            else
+              echo "_No daily report was generated this run._"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # A silent system must never fail silently: ping Telegram if the
+      # workflow itself breaks, so "no alerts" always means "no opportunity".
+      - name: Notify on workflow failure
+        if: failure()
+        run: |
+          if [ -f .env ]; then
+            BOT_TOKEN=$(grep -E '^TELEGRAM_BOT_TOKEN=' .env | cut -d= -f2- | tr -d '"' | tr -d "'")
+            CHAT_ID=$(grep -E '^TELEGRAM_CHAT_ID=' .env | cut -d= -f2- | tr -d '"' | tr -d "'")
+            if [ -n "$BOT_TOKEN" ] && [ -n "$CHAT_ID" ]; then
+              curl -sS -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+                -d chat_id="${CHAT_ID}" \
+                --data-urlencode text="⚠️ Cocoa daily workflow FAILED ($(date -u +%F)). Check: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+                > /dev/null && echo "Failure notification sent to Telegram"
+            else
+              echo "Telegram credentials not found in .env — no failure ping sent"
+            fi
+          else
+            echo ".env not present — no failure ping sent"
+          fi
+
+      # Persist learning/state files back to the repo. Runs even if the
+      # pipeline or agent failed, so partial state (e.g. scored predictions)
+      # is never lost.
+      - name: Commit state files
+        if: always()
+        run: |
+          # Make absolutely sure credentials never get committed
+          rm -f gee-service-account.json .env
+
+          git config user.name  "cocoa-agent-bot"
+          git config user.email "actions@users.noreply.github.com"
+
+          STATE_FILES="
+            cocoa_shadow_ledger.json
+            cocoa_prediction_ledger.json
+            cocoa_opportunity_log.json
+            cocoa_monitor_log.json
+            cocoa_alert_state.json
+            cot_cocoa_history.json
+            ice_warehouse_history.json
+            cocoa_crop_health.json
+            cocoa_crop_diff.json
+            cocoa_feedback_summary.json
+            climatology_cache.json
+            cocoa_postmortems.json
+            cocoa_weekly_history.json
+            grinding_data_cache.json
+            grinding_impact_history.json
+            cocoa_daily_snapshot.json
+            cocoa_pipeline_health.json
+            cocoa_daily_report.md
+            cocoa_weekly_report.md
+            cocoa_daily_rec.json
+          "
+
+          for f in $STATE_FILES; do
+            [ -f "$f" ] && git add "$f"
+          done
+
+          if git diff --cached --quiet; then
+            echo "No state changes to commit."
+          else
+            git commit -m "chore: daily state $(date -u +%F) [skip ci]"
+            # Handle any push that landed since checkout
+            git pull --rebase origin main
+            git push origin main
+          fi

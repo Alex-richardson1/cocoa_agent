@@ -38,8 +38,8 @@ log = logging.getLogger(__name__)
 ALERT_LEVELS = {
     "SILENT":       (0,  39),    # Log internally, no notification
     "MONITOR":      (40, 64),    # Daily log entry, no notification
-    "WATCHLIST":    (65, 79),    # Telegram alert: "conditions building"
-    "OPPORTUNITY":  (80, 100),   # Full report: "act on this"
+    "WATCHLIST":    (65, 79),    # Logged + surfaced in weekly review, NO Telegram
+    "OPPORTUNITY":  (80, 100),   # Telegram full report (subject to cooldown)
 }
 
 # Component weights (must sum to 100)

@@ -5,6 +5,7 @@ requests
 python-dotenv
 yfinance
 beautifulsoup4
+feedparser
 earthengine-api
 google-auth
 python-dateutil

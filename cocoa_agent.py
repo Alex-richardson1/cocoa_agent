@@ -1313,25 +1313,6 @@ def run_agent(snapshot_file: str = SNAPSHOT_FILE, dry_run: bool = False):
 
     else:
         log.warning("Opportunity scorer unavailable; defaulting to SILENT")
-    # ── Shadow prediction recording (every run, regardless of alert level) ──
-    if WEEKLY_REVIEW_AVAILABLE:
-        try:
-            record_shadow_prediction(snapshot, parsed_rec, opp_result)
-        except Exception as e:
-            log.warning(f"Shadow prediction recording failed (non-critical): {e}")
-
-        # ── Weekly report (Sundays only, once per day) ────────────────────
-        try:
-            if should_generate_weekly_report():
-                current_price = snapshot.get("technicals", {}).get("price", {}).get("current")
-                if current_price:
-                    weekly_report = generate_weekly_report(
-                        float(current_price), snapshot, opp_result
-                    )
-                    log.info("  📋 Weekly report generated — sending via Telegram")
-                    send_telegram(weekly_report)
-        except Exception as e:
-            log.warning(f"Weekly report generation failed (non-critical): {e}")
 
     # Override alert level if --force-alert was set
     if os.environ.get("COCOA_FORCE_ALERT") == "1":
@@ -1339,10 +1320,12 @@ def run_agent(snapshot_file: str = SNAPSHOT_FILE, dry_run: bool = False):
         alert_level = "OPPORTUNITY"
 
     # ── Record shadow prediction (always, regardless of alert level) ──
-    if WEEKLY_REVIEW_AVAILABLE and FEEDBACK_AVAILABLE:
+    if WEEKLY_REVIEW_AVAILABLE:
         try:
-            parsed = extract_recommendation(raw_report)
-            record_shadow_prediction(snapshot, parsed, opp_result)
+            rec_for_shadow = parsed_rec
+            if not rec_for_shadow and FEEDBACK_AVAILABLE:
+                rec_for_shadow = extract_recommendation(raw_report)
+            record_shadow_prediction(snapshot, rec_for_shadow or {}, opp_result)
         except Exception as e:
             log.warning(f"Shadow prediction recording failed (non-critical): {e}")
 
@@ -1368,6 +1351,7 @@ def run_agent(snapshot_file: str = SNAPSHOT_FILE, dry_run: bool = False):
 
     # ── Deliver based on alert level ──────────────────────
     delivered = False
+    suppressed = False
 
     if alert_level == "SILENT":
         log.info("  📊 SILENT — no actionable opportunity. Logged internally.")
@@ -1378,24 +1362,32 @@ def run_agent(snapshot_file: str = SNAPSHOT_FILE, dry_run: bool = False):
         _save_monitor_entry(opp_result, snapshot)
 
     elif alert_level == "WATCHLIST":
-        log.info(f"  ⚠️ WATCHLIST — sending alert")
-        if TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID and opp_result:
-            watchlist_msg = format_watchlist_alert(opp_result, snapshot)
-            delivered = send_telegram(watchlist_msg)
+        # Policy: WATCHLIST does NOT message Telegram. It is logged so the
+        # weekly review can surface "conditions building" instead.
+        log.info(f"  👁️ WATCHLIST — conditions building (logged, no alert per policy)")
+        _save_monitor_entry(opp_result, snapshot)
 
     elif alert_level == "OPPORTUNITY":
-        log.info(f"  🔔 OPPORTUNITY — sending full report")
-        if TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID:
-            if opp_result:
-                opp_msg = format_opportunity_alert(opp_result, formatted_report, snapshot)
-                delivered = send_telegram(opp_msg)
-            else:
-                delivered = send_telegram(formatted_report)
+        suppressed, reason = _alert_cooldown_active(opp_result)
+        if suppressed:
+            log.info(f"  🔕 OPPORTUNITY suppressed by cooldown — {reason}")
+            _save_monitor_entry(opp_result, snapshot)
+        else:
+            log.info(f"  🔔 OPPORTUNITY — sending full report")
+            if TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID:
+                if opp_result:
+                    opp_msg = format_opportunity_alert(opp_result, formatted_report, snapshot)
+                    delivered = send_telegram(opp_msg)
+                else:
+                    delivered = send_telegram(formatted_report)
 
-        if EMAIL_FROM and EMAIL_TO and EMAIL_APP_PASSWORD:
-            delivered = send_email(formatted_report, snapshot) or delivered
+            if EMAIL_FROM and EMAIL_TO and EMAIL_APP_PASSWORD:
+                delivered = send_email(formatted_report, snapshot) or delivered
 
-    if alert_level in ("WATCHLIST", "OPPORTUNITY") and not delivered:
+            if delivered:
+                _record_alert_sent(opp_result)
+
+    if alert_level == "OPPORTUNITY" and not delivered and not suppressed:
         log.info("No delivery method configured — report saved to file only.")
 
     # ── Send weekly report if generated ───────────────────
@@ -1408,6 +1400,89 @@ def run_agent(snapshot_file: str = SNAPSHOT_FILE, dry_run: bool = False):
 
     log.info(f"\n✅ Agent run complete. Alert level: {alert_level}")
     return formatted_report
+
+
+# ─────────────────────────────────────────────
+#  ALERT COOLDOWN — keep alerts to a handful per year
+# ─────────────────────────────────────────────
+
+ALERT_STATE_FILE        = os.getenv("ALERT_STATE_FILE", "cocoa_alert_state.json")
+ALERT_COOLDOWN_DAYS     = int(os.getenv("ALERT_COOLDOWN_DAYS", "10"))
+ALERT_ESCALATION_POINTS = float(os.getenv("ALERT_ESCALATION_POINTS", "5"))
+
+
+def _load_alert_state() -> dict:
+    import json as _json
+    try:
+        with open(ALERT_STATE_FILE, "r") as f:
+            return _json.load(f)
+    except (FileNotFoundError, _json.JSONDecodeError):
+        return {}
+
+
+def _alert_cooldown_active(opp_result: dict) -> tuple:
+    """
+    Decide whether to suppress a repeat OPPORTUNITY alert.
+
+    Suppress when ALL of:
+      - the last alert was sent within ALERT_COOLDOWN_DAYS
+      - the direction (LONG/SHORT) is the same setup
+      - the score has NOT escalated by >= ALERT_ESCALATION_POINTS
+
+    Returns (suppressed: bool, reason: str).
+    A genuinely new setup (direction flip) or a materially stronger
+    score always gets through.
+    """
+    state = _load_alert_state()
+    last = state.get("last_opportunity_alert")
+    if not last:
+        return False, ""
+
+    try:
+        last_dt = datetime.fromisoformat(last["sent_at"])
+    except (KeyError, ValueError):
+        return False, ""
+
+    days_since = (datetime.now(timezone.utc) - last_dt).days
+    if days_since >= ALERT_COOLDOWN_DAYS:
+        return False, ""
+
+    same_direction = (
+        (opp_result or {}).get("direction") == last.get("direction")
+    )
+    if not same_direction:
+        return False, ""
+
+    current_score = float((opp_result or {}).get("total_score") or 0)
+    last_score = float(last.get("score") or 0)
+    if current_score >= last_score + ALERT_ESCALATION_POINTS:
+        return False, ""
+
+    return True, (
+        f"same {last.get('direction')} setup alerted {days_since}d ago "
+        f"(score {last_score} → {current_score}, needs +{ALERT_ESCALATION_POINTS} "
+        f"to re-alert within {ALERT_COOLDOWN_DAYS}d)"
+    )
+
+
+def _record_alert_sent(opp_result: dict):
+    """Persist the last-sent OPPORTUNITY alert for cooldown tracking."""
+    import json as _json
+    state = _load_alert_state()
+    state["last_opportunity_alert"] = {
+        "sent_at":   datetime.now(timezone.utc).isoformat(),
+        "score":     (opp_result or {}).get("total_score"),
+        "direction": (opp_result or {}).get("direction"),
+        "summary":   (opp_result or {}).get("summary"),
+    }
+    history = state.get("alert_history", [])
+    history.append(state["last_opportunity_alert"])
+    state["alert_history"] = history[-50:]
+    try:
+        with open(ALERT_STATE_FILE, "w") as f:
+            _json.dump(state, f, indent=2)
+    except Exception as e:
+        log.warning(f"Could not save alert state: {e}")
 
 
 def _save_monitor_entry(opp_result: dict, snapshot: dict):

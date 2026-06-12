@@ -455,26 +455,47 @@ def run_pipeline():
     #  STEP 7: Crop Monitor (GEE)
     # ══════════════════════════════════════════════
     try:
-        log.info("Step 7: Loading cached crop health...")
+        log.info("Step 7: Crop health (GEE satellite)...")
 
         crop = load_cached_crop_health_for_agent()
+        cache_age = crop.get("data_age_days") if crop else None
+
+        max_age = int(os.getenv("CROP_REFRESH_MAX_AGE_DAYS", "2"))
+        needs_refresh = crop is None or cache_age is None or cache_age >= max_age
+
+        crop_source = "cached"
+        if needs_refresh:
+            log.info(
+                f"  Crop cache missing or stale (age={cache_age}d, "
+                f"max={max_age}d) — attempting GEE refresh..."
+            )
+            try:
+                from cocoa_crop_monitor import run_crop_monitor
+
+                run_crop_monitor(generate_chart=False)
+                crop = load_cached_crop_health_for_agent()
+                crop_source = "gee_refreshed"
+                log.info("  ✅ GEE crop monitor refreshed successfully")
+            except Exception as e:
+                crop_source = "cached_after_refresh_failure"
+                log.warning(f"  ⚠️ GEE refresh failed, falling back to cache: {e}")
 
         if crop:
             snapshot["crop_health"] = crop
             results["steps"]["crop_monitor"] = {
-                "status": "OK",
-                "source": "cached",
+                "status": "OK" if crop_source != "cached_after_refresh_failure" else "DEGRADED",
+                "source": crop_source,
                 "data_age_days": crop.get("data_age_days"),
                 "stale": crop.get("stale"),
                 "signal": crop.get("named_signal") or crop.get("overall_signal"),
             }
-            log.info("  ✅ Crop health loaded from cached cocoa_crop_health.json")
+            log.info(f"  ✅ Crop health loaded (source: {crop_source})")
         else:
             results["steps"]["crop_monitor"] = {
                 "status": "SKIP",
-                "error": "No cached cocoa_crop_health.json found",
+                "error": "No crop health data (no cache, refresh unavailable)",
             }
-            log.info("  ⏭️ Crop monitor: no cached cocoa_crop_health.json found")
+            log.info("  ⏭️ Crop monitor: no crop health data available")
     except Exception as e:
         results["steps"]["crop_monitor"] = {"status": "FAIL", "error": str(e)}
         log.warning(f"  ❌ Crop monitor failed: {e}")
@@ -548,7 +569,7 @@ def run_pipeline():
         pass
 
     # ══════════════════════════════════════════════
-    #  STEP 10: Grinding Data
+    #  STEP 10: Grinding Data & Release Impact Model
     # ══════════════════════════════════════════════
     try:
         from cocoa_data_gatherer import load_grinding_data
@@ -557,6 +578,41 @@ def run_pipeline():
         snapshot["grinding_data"] = grinding
     except Exception:
         pass
+
+    try:
+        log.info("Step 10b: Grinding release impact model...")
+        from cocoa_grinding_impact import compute_grinding_impact
+
+        grinding_impact = compute_grinding_impact(
+            current_price_gbp=snapshot.get("price_gbp"),
+            fill_prices=True,
+        )
+        snapshot["grinding_impact"] = grinding_impact
+
+        n_forecasts = len(grinding_impact.get("forecasts", []))
+        if grinding_impact.get("needs_schedule_update"):
+            results["steps"]["grinding_impact"] = {
+                "status": "DEGRADED",
+                "error": grinding_impact.get(
+                    "maintenance_note", "UPCOMING_RELEASES needs updating"
+                ),
+                "forecasts": n_forecasts,
+            }
+            log.warning("  ⚠️ Grinding impact: UPCOMING_RELEASES needs updating")
+        else:
+            results["steps"]["grinding_impact"] = {
+                "status": "OK",
+                "forecasts": n_forecasts,
+            }
+            log.info(f"  ✅ Grinding impact: {n_forecasts} forecast(s)")
+    except ImportError:
+        results["steps"]["grinding_impact"] = {
+            "status": "SKIP",
+            "error": "cocoa_grinding_impact module not available",
+        }
+    except Exception as e:
+        results["steps"]["grinding_impact"] = {"status": "FAIL", "error": str(e)}
+        log.warning(f"  ❌ Grinding impact failed: {e}")
 
     # ══════════════════════════════════════════════
     #  SAVE SNAPSHOT
