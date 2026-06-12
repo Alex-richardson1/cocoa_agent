@@ -206,6 +206,110 @@ def run_pipeline():
         from cocoa_data_gatherer import fetch_related_markets, RELATED_TICKERS
 
         related = fetch_related_markets(RELATED_TICKERS)
+
+        # Fallback to yfinance for any markets that Stooq failed to fetch.
+        # RELATED_TICKERS already uses Yahoo-compatible tickers, e.g.
+        # DX-Y.NYB, GBPUSD=X, SB=F, KC=F, ^GSPC.
+        missing = [
+            name
+            for name, value in related.items()
+            if not isinstance(value, dict) or value.get("price") is None
+        ]
+
+        if missing:
+            log.info(
+                f"  Attempting yfinance fallback for related markets: "
+                f"{', '.join(missing)}"
+            )
+
+            try:
+                import yfinance as yf
+
+                for name in missing:
+                    yf_ticker = RELATED_TICKERS.get(name)
+                    if not yf_ticker:
+                        related[name] = {
+                            "price": None,
+                            "change_pct": None,
+                            "note": "no yfinance ticker configured",
+                        }
+                        continue
+
+                    try:
+                        df_rel = yf.download(
+                            yf_ticker,
+                            period="5d",
+                            interval="1d",
+                            auto_adjust=True,
+                            progress=False,
+                        )
+
+                        if df_rel is None or df_rel.empty:
+                            related[name] = {
+                                "price": None,
+                                "change_pct": None,
+                                "source": "yfinance",
+                                "ticker": yf_ticker,
+                                "note": "no data returned",
+                            }
+                            log.warning(f"  ⚠️  {name} ({yf_ticker}) fallback returned no data")
+                            continue
+
+                        # yfinance can return MultiIndex columns in newer versions.
+                        if hasattr(df_rel.columns, "nlevels") and df_rel.columns.nlevels > 1:
+                            df_rel.columns = df_rel.columns.droplevel(-1)
+
+                        df_rel = df_rel.dropna(subset=["Close"])
+                        if df_rel.empty:
+                            related[name] = {
+                                "price": None,
+                                "change_pct": None,
+                                "source": "yfinance",
+                                "ticker": yf_ticker,
+                                "note": "no valid close data",
+                            }
+                            log.warning(f"  ⚠️  {name} ({yf_ticker}) fallback had no valid closes")
+                            continue
+
+                        latest_close = float(df_rel["Close"].iloc[-1])
+
+                        if len(df_rel) >= 2:
+                            prev_close = float(df_rel["Close"].iloc[-2])
+                            change_pct = (
+                                round((latest_close - prev_close) / prev_close * 100, 2)
+                                if prev_close
+                                else None
+                            )
+                        else:
+                            change_pct = None
+
+                        related[name] = {
+                            "price": round(latest_close, 4 if name == "GBPUSD" else 2),
+                            "change_pct": change_pct,
+                            "label": name,
+                            "source": "yfinance",
+                            "ticker": yf_ticker,
+                        }
+
+                        log.info(
+                            f"  ✅ {name:12s}: {related[name]['price']} "
+                            f"({'+' if (change_pct or 0) >= 0 else ''}{change_pct}%) "
+                            f"[yfinance]"
+                        )
+
+                    except Exception as e:
+                        related[name] = {
+                            "price": None,
+                            "change_pct": None,
+                            "source": "yfinance",
+                            "ticker": yf_ticker,
+                            "note": f"fallback failed: {e}",
+                        }
+                        log.warning(f"  ⚠️  {name} ({yf_ticker}) yfinance fallback failed: {e}")
+
+            except ImportError as e:
+                log.warning(f"  ⚠️  yfinance fallback unavailable: {e}")
+
         snapshot["related_markets"] = related
 
         # Extract GBPUSD for GBP display
@@ -215,10 +319,13 @@ def run_pipeline():
             snapshot["price_gbp"] = round(
                 snapshot["technicals"]["price"]["current"] / gbpusd, 1
             )
+        else:
+            snapshot["gbpusd_rate"] = gbpusd if gbpusd else None
+            snapshot["price_gbp"] = None
 
         successes = sum(
             1 for v in related.values()
-            if v.get("price") is not None
+            if isinstance(v, dict) and v.get("price") is not None
         )
         total_markets = len(RELATED_TICKERS)
 
@@ -227,9 +334,9 @@ def run_pipeline():
             related_error = None
             log_icon = "✅"
         elif successes == 0:
-            related_status = "FAIL"
+            related_status = "DEGRADED"
             related_error = f"0/{total_markets} related markets fetched"
-            log_icon = "❌"
+            log_icon = "⚠️"
         else:
             related_status = "DEGRADED"
             related_error = f"Only {successes}/{total_markets} related markets fetched"
@@ -245,9 +352,13 @@ def run_pipeline():
             results["steps"]["related_markets"]["error"] = related_error
 
         log.info(f"  {log_icon} Related markets: {successes}/{total_markets}")
+
     except Exception as e:
-        results["steps"]["related_markets"] = {"status": "FAIL", "error": str(e)}
-        log.warning(f"  ❌ Related markets failed: {e}")
+        results["steps"]["related_markets"] = {"status": "DEGRADED", "error": str(e)}
+        snapshot["related_markets"] = {"error": str(e)}
+        snapshot["gbpusd_rate"] = None
+        snapshot["price_gbp"] = None
+        log.warning(f"  ⚠️ Related markets failed: {e}")
 
     # ══════════════════════════════════════════════
     #  STEP 3: COT Positioning
