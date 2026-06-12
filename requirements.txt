@@ -3,8 +3,6 @@ pandas
 numpy
 requests
 python-dotenv
-feedparser
-sgmllib3k
 yfinance
 beautifulsoup4
 earthengine-api
